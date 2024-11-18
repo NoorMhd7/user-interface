@@ -43,6 +43,7 @@ A Qt-based desktop application for visualizing UK/EU water quality data with emp
    ```bash
    cmake ..
    make
+   ./water-quality-qt
    ```
 
 ## Team Members
