@@ -8,11 +8,11 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Charts)
+qt_standard_project_setup()
 
 set(PROJECT_SOURCES
     src/main.cpp
     src/mainwindow.cpp
-    src/mainwindow.h
 )
 
 add_executable(water-quality-qt
