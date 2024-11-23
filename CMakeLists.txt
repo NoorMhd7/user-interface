@@ -24,4 +24,5 @@ target_link_libraries(water-quality-qt PRIVATE
     Qt6::Gui
     Qt6::Widgets
     Qt6::Charts
+    
 )

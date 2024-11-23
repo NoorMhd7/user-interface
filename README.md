@@ -15,16 +15,10 @@ A Qt-based desktop application for visualizing UK/EU water quality data with emp
 - C++17 compatible compiler
 
 ## Project Structure
-- `src/`: Source files
-  - `models/`: Data models
-  - `views/`: UI components
-  - `utils/`: Utility classes
-- `resources/`: Application resources
-  - `data/`: Data files
-  - `images/`: Image assets
-  - `translations/`: Language files
-- `tests/`: Unit tests
-- `docs/`: Documentation
+- `src/`: Source files (where the coding takes place)
+- `cwk_3/`: All the coursework reuirements
+- `data/`: Our csv data file is here
+
 
 ## Building the Project
 1. Clone the repository
