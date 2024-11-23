@@ -30,7 +30,6 @@ A Qt-based desktop application for visualizing UK/EU water quality data with emp
 1. Clone the repository
    ```bash
    git clone https://github.com/your-username/water-quality-qt.git
-   cd water-quality-qt
    ```
 
 2. Create build directory
