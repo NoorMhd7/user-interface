@@ -15,6 +15,11 @@ set(PROJECT_SOURCES
     src/mainwindow.cpp
     src/examplepage.cpp
     src/dashboard.cpp
+    src/data/window.cpp
+    src/data/stats.cpp
+    src/data/quake.cpp
+    src/data/model.cpp
+    src/data/dataset.cpp
 )
 
 add_executable(water-quality-qt

@@ -4,6 +4,7 @@
 #include <QSplitter>
 #include "examplepage.h"
 #include "dashboard.h"
+#include "data/window.hpp"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), stackedWidget(new QStackedWidget), sidebar(new QListWidget)
@@ -28,6 +29,7 @@ void MainWindow::setupUi()
     sidebar->setFixedWidth(200);
     sidebar->addItem("Dashboard");
     sidebar->addItem("Example");
+    sidebar->addItem("Data");
 
     // Add sidebar to the splitter
     splitter->addWidget(sidebar);
@@ -39,6 +41,10 @@ void MainWindow::setupUi()
     // Examplepage
     ExamplePage *examplePage = new ExamplePage();
     stackedWidget->addWidget(examplePage);
+
+    // Data Page
+    QuakeWindow *quakeWindow = new QuakeWindow();
+    stackedWidget->addWidget(quakeWindow);
 
     // Add stackedWidget to the splitter
     splitter->addWidget(stackedWidget);

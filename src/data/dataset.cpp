@@ -3,7 +3,7 @@
 #include <numeric>
 #include <stdexcept>
 
-void QuakeDataset::loadData(const std::string &filename)
+void QuakeDataset::loadData(const std::string &filename = "Y-2024.csv")
 {
   csv::CSVReader reader(filename);
   data.clear();

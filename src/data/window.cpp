@@ -2,7 +2,7 @@
 #include "stats.hpp"
 #include <QtWidgets>
 
-static const int MIN_WIDTH = 620;
+static const int MIN_WIDTH = 875;
 
 QuakeWindow::QuakeWindow(QWidget *parent)
     : QMainWindow(parent), statsDialog(nullptr)
