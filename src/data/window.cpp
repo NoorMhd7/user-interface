@@ -8,7 +8,6 @@ QuakeWindow::QuakeWindow(QWidget *parent)
     : QMainWindow(parent), statsDialog(nullptr)
 {
   createMainWidget();
-  createFileSelectors();
   createButtons();
   createToolBar();
   createStatusBar();
@@ -40,19 +39,6 @@ void QuakeWindow::createMainWidget()
   layout->addWidget(table);
 
   setCentralWidget(centralWidget);
-}
-
-void QuakeWindow::createFileSelectors()
-{
-  QStringList periodOptions;
-  periodOptions << "month" << "week" << "day";
-  period = new QComboBox();
-  period->addItems(periodOptions);
-
-  QStringList significanceOptions;
-  significanceOptions << "all" << "major" << "minor";
-  significance = new QComboBox();
-  significance->addItems(significanceOptions);
 }
 
 void QuakeWindow::createButtons()

@@ -13,7 +13,8 @@ qt_standard_project_setup()
 set(PROJECT_SOURCES
     src/main.cpp
     src/mainwindow.cpp
-    src/examplepage.cpp
+    src/PollutantOverview.cpp
+    src/LitterIndicators.cpp
     src/dashboard.cpp
     src/data/window.cpp
     src/data/stats.cpp
