@@ -17,7 +17,7 @@ A Qt-based desktop application for visualizing UK/EU water quality data with emp
 ## Project Structure
 - `src/`: Source files (where the coding takes place)
 - `cwk_3/`: All the coursework reuirements
-- `data/`: Our csv data file is here
+- `src/data/`: Our csv data file is here
 
 
 ## Building the Project
