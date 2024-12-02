@@ -7,6 +7,7 @@
 #include "LitterIndicators.h"
 #include "dashboard.h"
 #include "data/window.hpp"
+#include "pop.h"
 #include <QFont>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -59,6 +60,9 @@ void MainWindow::setupUi()
     QListWidgetItem *pollutantO = new QListWidgetItem("Pollutant Overview", sidebar);
     pollutantO->setTextAlignment(Qt::AlignCenter);
 
+    QListWidgetItem *OrganicItem = new QListWidgetItem("POP's", sidebar);
+    OrganicItem->setTextAlignment(Qt::AlignCenter);
+
     QListWidgetItem *LitterInd = new QListWidgetItem("Litter Indicators", sidebar);
     LitterInd->setTextAlignment(Qt::AlignCenter);
 
@@ -103,6 +107,9 @@ void MainWindow::setupUi()
     // Example Page
     PollutantOverview *PollutantO = new PollutantOverview();
     stackedWidget->addWidget(PollutantO);
+
+    Pop *OrganicP = new Pop();
+    stackedWidget->addWidget(OrganicP);
 
     LitterIndicators *Litter = new LitterIndicators();
     stackedWidget->addWidget(Litter);
