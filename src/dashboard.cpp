@@ -15,12 +15,12 @@ Dashboard::Dashboard(QWidget *parent)
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
     // Set the background color of the main layout
-    setStyleSheet("background-color: #1E2638; color: #FFFFFF;");
+    setStyleSheet("background-color: #2F3A4F; color: #FFFFFF;");
 
     // Header
     QHBoxLayout *headerLayout = new QHBoxLayout();
     QLabel *appTitle = new QLabel("Water Quality Monitor", this);
-    appTitle->setStyleSheet("font-size: 24px; font-weight: bold; color: #1E2638; background-color: #FFFFFF; padding: 10px;");
+    appTitle->setStyleSheet("font-size: 24px; font-weight: bold; color: #F55FF3; background-color: #1E2638; padding: 10px;");
     headerLayout->addWidget(appTitle);
 
     // Language Selector
@@ -60,7 +60,7 @@ Dashboard::Dashboard(QWidget *parent)
     for (int i = 0; i < pollutantCategories.size(); ++i) {
         QFrame *pollutantCard = new QFrame(this);
         pollutantCard->setFrameShape(QFrame::StyledPanel);
-        pollutantCard->setStyleSheet("background-color: #2F3A4F; color: #FFFFFF; border-radius: 10px; padding: 10px;");
+        pollutantCard->setStyleSheet("background-color: #1E2638; color: #FFFFFF; border-radius: 10px; padding: 10px;");
         QVBoxLayout *pollutantCardLayout = new QVBoxLayout(pollutantCard);
         QLabel *pollutantTitle = new QLabel(pollutantCategories[i], this);
         pollutantTitle->setStyleSheet("font-size: 18px; font-weight: bold; color: #FFFFFF;");
@@ -69,9 +69,18 @@ Dashboard::Dashboard(QWidget *parent)
         pollutantSummary->setStyleSheet("color: #FFFFFF;");
         pollutantCardLayout->addWidget(pollutantSummary);
         QPushButton *pollutantDetailsButton = new QPushButton("View Details", this);
-        pollutantDetailsButton->setStyleSheet("background-color: #FFFFFF; color: #1E2638; border: none; padding: 5px;");
+        pollutantDetailsButton->setStyleSheet("background-color: #2F3A4F; color: #FFFFFF; border: none; padding: 5px;");
         pollutantCardLayout->addWidget(pollutantDetailsButton);
         contentLayout->addWidget(pollutantCard, i / 2, i % 2); // Arrange in a grid
+
+        // Connect the "View Details" button to the corresponding signal
+        if (i == 0) {
+            connect(pollutantDetailsButton, &QPushButton::clicked, this, &Dashboard::navigateToPollutantOverview);
+        } else if (i == 1) {
+            connect(pollutantDetailsButton, &QPushButton::clicked, this, &Dashboard::navigateToPOPs);
+        } else if (i == 2) {
+            connect(pollutantDetailsButton, &QPushButton::clicked, this, &Dashboard::navigateToLitterIndicators);
+        }
     }
 
     contentWidget->setLayout(contentLayout);
@@ -82,11 +91,11 @@ Dashboard::Dashboard(QWidget *parent)
     // Footer
     QHBoxLayout *footerLayout = new QHBoxLayout();
     QPushButton *helpButton = new QPushButton("Help", this);
-    helpButton->setStyleSheet("background-color: #FFFFFF; color: #1E2638; border: none; padding: 5px;");
+    helpButton->setStyleSheet("background-color: #2F3A4F; color: #FFFFFF; border: none; padding: 5px;");
     QPushButton *userGuideButton = new QPushButton("User Guide", this);
-    userGuideButton->setStyleSheet("background-color: #FFFFFF; color: #1E2638; border: none; padding: 5px;");
+    userGuideButton->setStyleSheet("background-color: #2F3A4F; color: #FFFFFF; border: none; padding: 5px;");
     QPushButton *creditsButton = new QPushButton("Credits", this);
-    creditsButton->setStyleSheet("background-color: #FFFFFF; color: #1E2638; border: none; padding: 5px;");
+    creditsButton->setStyleSheet("background-color: #2F3A4F; color: #FFFFFF; border: none; padding: 5px;");
 
     connect(helpButton, &QPushButton::clicked, this, &Dashboard::showHelp);
     connect(userGuideButton, &QPushButton::clicked, this, &Dashboard::showUserGuide);

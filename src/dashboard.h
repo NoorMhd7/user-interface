@@ -10,6 +10,11 @@ class Dashboard : public QWidget
 public:
     explicit Dashboard(QWidget *parent = nullptr);
 
+signals:
+    void navigateToPollutantOverview();
+    void navigateToPOPs();
+    void navigateToLitterIndicators();
+
 private slots:
     void showHelp();
     void showUserGuide();
