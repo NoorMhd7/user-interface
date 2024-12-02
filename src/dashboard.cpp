@@ -7,6 +7,7 @@
 #include <QFrame>
 #include <QScrollArea>
 #include <QGridLayout>
+#include <QMessageBox>
 
 Dashboard::Dashboard(QWidget *parent)
     : QWidget(parent)
@@ -68,15 +69,35 @@ Dashboard::Dashboard(QWidget *parent)
     scrollArea->setWidgetResizable(true);
     mainLayout->addWidget(scrollArea);
 
-    // Footer
+        // Footer
     QHBoxLayout *footerLayout = new QHBoxLayout();
     QPushButton *helpButton = new QPushButton("Help", this);
     QPushButton *userGuideButton = new QPushButton("User Guide", this);
     QPushButton *creditsButton = new QPushButton("Credits", this);
+
+    connect(helpButton, &QPushButton::clicked, this, &Dashboard::showHelp);
+    connect(userGuideButton, &QPushButton::clicked, this, &Dashboard::showUserGuide);
+    connect(creditsButton, &QPushButton::clicked, this, &Dashboard::showCredits);
+
     footerLayout->addWidget(helpButton);
     footerLayout->addWidget(userGuideButton);
     footerLayout->addWidget(creditsButton);
     mainLayout->addLayout(footerLayout);
 
     setLayout(mainLayout);
+}
+
+void Dashboard::showHelp()
+{
+    QMessageBox::information(this, "Help", "This is the help information.");
+}
+
+void Dashboard::showUserGuide()
+{
+    QMessageBox::information(this, "User Guide", "This is the user guide information.");
+}
+
+void Dashboard::showCredits()
+{
+    QMessageBox::information(this, "Credits", "These are the credits for data sources.");
 }

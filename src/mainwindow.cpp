@@ -30,7 +30,7 @@ void MainWindow::setupUi()
     sidebar->addItem("Dashboard");
     sidebar->addItem("Example");
     sidebar->addItem("Data");
-
+    
     // Add sidebar to the splitter
     splitter->addWidget(sidebar);
 
