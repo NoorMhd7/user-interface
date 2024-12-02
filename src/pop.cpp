@@ -1,7 +1,7 @@
 #include "pop.h"
 #include <QVBoxLayout>
 #include <QLabel>
-
+// 1375 Location, around 500 pollutants
 Pop::Pop(QWidget *parent)
     : QWidget(parent)
 {
