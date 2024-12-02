@@ -23,6 +23,9 @@ private:
     QListWidget *sidebar;
 private slots:
     void navigateToPage(int index);
+    void showPollutantOverview();
+    void showPOPs();
+    void showLitterIndicators();
 };
 
 #endif // MAINWINDOW_H

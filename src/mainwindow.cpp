@@ -104,15 +104,17 @@ void MainWindow::setupUi()
     Dashboard *dashboardPage = new Dashboard();
     stackedWidget->addWidget(dashboardPage);
 
-    // Example Page
-    PollutantOverview *PollutantO = new PollutantOverview();
-    stackedWidget->addWidget(PollutantO);
+    // Pollutant Overview Page
+    PollutantOverview *pollutantOverviewPage = new PollutantOverview();
+    stackedWidget->addWidget(pollutantOverviewPage);
 
-    Pop *OrganicP = new Pop();
-    stackedWidget->addWidget(OrganicP);
+    // POPs Page
+    Pop *popsPage = new Pop();
+    stackedWidget->addWidget(popsPage);
 
-    LitterIndicators *Litter = new LitterIndicators();
-    stackedWidget->addWidget(Litter);
+    // Litter Indicators Page
+    LitterIndicators *litterIndicatorsPage = new LitterIndicators();
+    stackedWidget->addWidget(litterIndicatorsPage);
 
     // Data Page
     QuakeWindow *quakeWindow = new QuakeWindow();
@@ -134,6 +136,11 @@ void MainWindow::setupUi()
     // Signal-slot connection for navigation
     connect(sidebar, &QListWidget::currentRowChanged, this, &MainWindow::navigateToPage);
     sidebar->setCurrentRow(0);
+
+    // Connect dashboard signals to main window slots
+    connect(dashboardPage, &Dashboard::navigateToPollutantOverview, this, &MainWindow::showPollutantOverview);
+    connect(dashboardPage, &Dashboard::navigateToPOPs, this, &MainWindow::showPOPs);
+    connect(dashboardPage, &Dashboard::navigateToLitterIndicators, this, &MainWindow::showLitterIndicators);
 }
 
 void MainWindow::setupSidebar()
@@ -143,4 +150,19 @@ void MainWindow::setupSidebar()
 void MainWindow::navigateToPage(int index)
 {
     stackedWidget->setCurrentIndex(index);
+}
+
+void MainWindow::showPollutantOverview()
+{
+    stackedWidget->setCurrentIndex(1); // Navigate to Pollutant Overview Page
+}
+
+void MainWindow::showPOPs()
+{
+    stackedWidget->setCurrentIndex(2); // Navigate to POPs Page
+}
+
+void MainWindow::showLitterIndicators()
+{
+    stackedWidget->setCurrentIndex(3); // Navigate to Litter Indicators Page
 }
