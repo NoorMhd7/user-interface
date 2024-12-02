@@ -15,6 +15,7 @@ set(PROJECT_SOURCES
     src/mainwindow.cpp
     src/PollutantOverview.cpp
     src/pop.cpp
+    src/Compound.cpp
     src/LitterIndicators.cpp
     src/dashboard.cpp
     src/data/window.cpp

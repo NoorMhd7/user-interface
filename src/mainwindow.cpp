@@ -8,6 +8,7 @@
 #include "dashboard.h"
 #include "data/window.hpp"
 #include "pop.h"
+#include "Compound.h"
 #include <QFont>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -51,7 +52,7 @@ void MainWindow::setupUi()
     )");
 
     // Sidebar setup
-    sidebar->setFixedWidth(200);
+    sidebar->setFixedWidth(225);
 
     // Add items and set text alignment for each
     QListWidgetItem *dashboardItem = new QListWidgetItem("Dashboard", sidebar);
@@ -65,6 +66,9 @@ void MainWindow::setupUi()
 
     QListWidgetItem *LitterInd = new QListWidgetItem("Litter Indicators", sidebar);
     LitterInd->setTextAlignment(Qt::AlignCenter);
+
+    QListWidgetItem *FCompound = new QListWidgetItem("Fluorinated Compounds", sidebar);
+    FCompound->setTextAlignment(Qt::AlignCenter);
 
     QListWidgetItem *dataItem = new QListWidgetItem("Data", sidebar);
     dataItem->setTextAlignment(Qt::AlignCenter);
@@ -115,6 +119,10 @@ void MainWindow::setupUi()
     // Litter Indicators Page
     LitterIndicators *litterIndicatorsPage = new LitterIndicators();
     stackedWidget->addWidget(litterIndicatorsPage);
+
+    // Compound Page
+    Compound *CompoundPage = new Compound();
+    stackedWidget->addWidget(CompoundPage);
 
     // Data Page
     QuakeWindow *quakeWindow = new QuakeWindow();
