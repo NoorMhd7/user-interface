@@ -162,11 +162,6 @@ QStringList PollutantOverview::fetchPollutantSuggestions()
 {
     QStringList suggestions;
     QFile file("Y-2024.csv");
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        qDebug() << "Error: Cannot open file.";
-        return suggestions;
-    }
 
     QTextStream in(&file);
     bool isFirstLine = true;
@@ -199,11 +194,6 @@ QStringList PollutantOverview::fetchPollutantSuggestionsBasedOnFilters(const QSt
 {
     QStringList suggestions;
     QFile file("data/Y-2024.csv");
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        qDebug() << "Error: Cannot open file.";
-        return suggestions;
-    }
 
     QTextStream in(&file);
     bool isFirstLine = true;
@@ -264,11 +254,6 @@ void PollutantOverview::updateTimeSeriesData(QLineSeries *series, const QString 
     series->clear();
 
     QFile file("dataY-2024.csv");
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        qDebug() << "Error: Cannot open file.";
-        return;
-    }
 
     QTextStream in(&file);
     bool isFirstLine = true;

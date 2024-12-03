@@ -2,6 +2,13 @@
 #define POP_H
 
 #include <QWidget>
+#include <QtCharts>
+
+QT_BEGIN_NAMESPACE
+class QVBoxLayout;
+class QLabel;
+class QComboBox;
+QT_END_NAMESPACE
 
 class Pop : public QWidget
 {
@@ -9,6 +16,14 @@ class Pop : public QWidget
 
 public:
     explicit Pop(QWidget *parent = nullptr);
+
+private slots:
+    void onLocationChanged(int index);
+
+private:
+    QVBoxLayout *mainLayout;
+    QComboBox *locationDropdown;
+    QChartView *chartView;
 };
 
-#endif
+#endif // POP_H

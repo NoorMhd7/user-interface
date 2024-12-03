@@ -61,7 +61,7 @@ void MainWindow::setupUi()
     QListWidgetItem *pollutantO = new QListWidgetItem("Pollutant Overview", sidebar);
     pollutantO->setTextAlignment(Qt::AlignCenter);
 
-    QListWidgetItem *OrganicItem = new QListWidgetItem("POP's", sidebar);
+    QListWidgetItem *OrganicItem = new QListWidgetItem("Organic Pollutants", sidebar);
     OrganicItem->setTextAlignment(Qt::AlignCenter);
 
     QListWidgetItem *LitterInd = new QListWidgetItem("Litter Indicators", sidebar);
