@@ -26,6 +26,7 @@ private slots:
     void showPollutantOverview();
     void showPOPs();
     void showLitterIndicators();
+    void updateSidebarSelection(int index);
 };
 
 #endif // MAINWINDOW_H

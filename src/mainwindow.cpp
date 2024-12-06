@@ -26,13 +26,27 @@ void MainWindow::setupUi()
 {
     setWindowTitle(tr("Water Quality Monitor"));
     resize(1024, 768);
+    this->setStyleSheet("QMainWindow { background-color: #2F3A4F; }");
 
     QSplitter *splitter = new QSplitter(this);
     splitter->setOrientation(Qt::Horizontal);
 
     // Sidebar container with title
     QWidget *sidebarContainer = new QWidget(this);
-    sidebarContainer->setStyleSheet("background-color: #2F3A4F;");
+    sidebarContainer->setStyleSheet(R"(
+        QWidget {
+            background-color: #2F3A4F;
+            border-right: 1px solid #1E2638;
+            margin-right: 2px;  /* Space for shadow */
+        }
+    )");
+
+    QGraphicsDropShadowEffect *shadowEffect = new QGraphicsDropShadowEffect;
+    shadowEffect->setBlurRadius(10);
+    shadowEffect->setXOffset(2);
+    shadowEffect->setYOffset(0);
+    shadowEffect->setColor(QColor(0, 0, 0, 80)); // Semi-transparent black
+    sidebarContainer->setGraphicsEffect(shadowEffect);
     QVBoxLayout *sidebarLayout = new QVBoxLayout(sidebarContainer);
     sidebarLayout->setContentsMargins(0, 0, 0, 0);
     sidebarLayout->setSpacing(0);
@@ -163,14 +177,22 @@ void MainWindow::navigateToPage(int index)
 void MainWindow::showPollutantOverview()
 {
     stackedWidget->setCurrentIndex(1); // Navigate to Pollutant Overview Page
+    updateSidebarSelection(1);         // Update sidebar selection
 }
 
 void MainWindow::showPOPs()
 {
     stackedWidget->setCurrentIndex(2); // Navigate to POPs Page
+    updateSidebarSelection(2);         // Update sidebar selection
 }
 
 void MainWindow::showLitterIndicators()
 {
     stackedWidget->setCurrentIndex(3); // Navigate to Litter Indicators Page
+    updateSidebarSelection(3);         // Update sidebar selection
+}
+
+void MainWindow::updateSidebarSelection(int index)
+{
+    sidebar->setCurrentRow(index);
 }
