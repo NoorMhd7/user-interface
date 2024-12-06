@@ -16,6 +16,7 @@ class Pop : public QWidget
 
 public:
     explicit Pop(QWidget *parent = nullptr);
+    QChartView *chartView;
 
 private slots:
     void onLocationChanged(int index);
@@ -23,7 +24,6 @@ private slots:
 private:
     QVBoxLayout *mainLayout;
     QComboBox *locationDropdown;
-    QChartView *chartView;
 };
 
 #endif // POP_H

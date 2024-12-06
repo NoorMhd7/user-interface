@@ -1,16 +1,15 @@
 #include "dashboard.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QLabel>
 #include <QPushButton>
-#include <QComboBox>
 #include <QFrame>
 #include <QScrollArea>
 #include <QGridLayout>
 #include <QMessageBox>
+#include <QApplication>
 
 Dashboard::Dashboard(QWidget *parent)
-    : QWidget(parent)
+    : QWidget(parent), appTitle(new QLabel(this)), languageSelector(new QComboBox(this))
 {
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setContentsMargins(20, 20, 20, 20);
@@ -18,15 +17,17 @@ Dashboard::Dashboard(QWidget *parent)
 
     // Header
     QHBoxLayout *headerLayout = new QHBoxLayout();
-    QLabel *appTitle = new QLabel("Water Quality Monitor", this);
+    appTitle->setText(tr("Water Quality Monitor"));
     appTitle->setStyleSheet("font-size: 24px; font-weight: bold; color: #f55ff3; padding: 10px;");
     headerLayout->addWidget(appTitle);
 
     // Language Selector
-    QComboBox *languageSelector = new QComboBox(this);
     languageSelector->setFixedWidth(200);
-    languageSelector->addItem("English");
-    languageSelector->addItem("Spanish");
+    languageSelector->addItem(tr("English"), "en");
+    languageSelector->addItem(tr("Spanish"), "es");
+    languageSelector->addItem(tr("French"), "fr");
+    languageSelector->addItem(tr("Chinese"), "zh");
+    languageSelector->addItem(tr("Hindi"), "hi");
     languageSelector->setStyleSheet(R"(
         QComboBox {
            background-color: #4A5A76;
@@ -38,21 +39,21 @@ Dashboard::Dashboard(QWidget *parent)
        QComboBox:hover {
            background-color: #3D485E;
        }
-    
    )");
+    connect(languageSelector, &QComboBox::currentTextChanged, this, &Dashboard::changeLanguage);
     headerLayout->addWidget(languageSelector, 0, Qt::AlignRight);
     mainLayout->addLayout(headerLayout);
 
     // Quick Filters
     QHBoxLayout *filtersLayout = new QHBoxLayout();
-    QLabel *filterLabel = new QLabel("Filter by:", this);
+    QLabel *filterLabel = new QLabel(tr("Filter by:"), this);
     filterLabel->setStyleSheet("color: white;");
     filtersLayout->addWidget(filterLabel);
 
     QComboBox *timeRangeFilter = new QComboBox(this);
     timeRangeFilter->setFixedWidth(200);
-    timeRangeFilter->addItem("Last Month");
-    timeRangeFilter->addItem("Last Year");
+    timeRangeFilter->addItem(tr("Last Month"));
+    timeRangeFilter->addItem(tr("Last Year"));
     timeRangeFilter->setStyleSheet(R"(
        QComboBox {
            background-color: #4A5A76;
@@ -69,9 +70,9 @@ Dashboard::Dashboard(QWidget *parent)
 
     QComboBox *regionFilter = new QComboBox(this);
     regionFilter->setFixedWidth(200);
-    regionFilter->addItem("All Regions");
-    regionFilter->addItem("Region 1");
-    regionFilter->addItem("Region 2");
+    regionFilter->addItem(tr("All Regions"));
+    regionFilter->addItem(tr("Region 1"));
+    regionFilter->addItem(tr("Region 2"));
     regionFilter->setStyleSheet(R"(
        QComboBox {
            background-color: #4A5A76;
@@ -97,64 +98,17 @@ Dashboard::Dashboard(QWidget *parent)
     contentLayout->setSpacing(10);
     contentLayout->setContentsMargins(10, 10, 10, 10);
 
-    // Pollutant categories
-    QStringList pollutantCategories = {"Pollutant Overview", "POPs", "Litter Indicators", "Fluorinated Compounds", "Compliance"};
-    for (int i = 0; i < pollutantCategories.size(); ++i)
-    {
-        QFrame *pollutantCard = new QFrame(this);
-        pollutantCard->setFrameShape(QFrame::StyledPanel);
-        pollutantCard->setStyleSheet(R"(
-           QFrame {
-               background-color: #1E2638;
-               border-radius: 4px;
-               margin: 5px;
-           }
-       )");
+    // Create instances of individual pages
+    compoundPage = new Compound(this);
+    popPage = new Pop(this);
+    pollutantOverviewPage = new PollutantOverview(this);
+    litterIndicatorsPage = new LitterIndicators(this);
 
-        QVBoxLayout *pollutantCardLayout = new QVBoxLayout(pollutantCard);
-        pollutantCardLayout->setContentsMargins(15, 15, 15, 15);
-        pollutantCardLayout->setSpacing(10);
-
-        QLabel *pollutantTitle = new QLabel(pollutantCategories[i], this);
-        pollutantTitle->setStyleSheet("font-size: 18px; font-weight: bold; color: white;");
-        pollutantCardLayout->addWidget(pollutantTitle);
-
-        QLabel *pollutantSummary = new QLabel("Average Level: 5.2 µg/L\nCompliance: Green", this);
-        pollutantSummary->setStyleSheet("color: white;");
-        pollutantCardLayout->addWidget(pollutantSummary);
-
-        QPushButton *pollutantDetailsButton = new QPushButton("View Details", this);
-        pollutantDetailsButton->setStyleSheet(R"(
-           QPushButton {
-               background-color: #4A5A76;
-               color: white;
-               border: none;
-               padding: 5px;
-               margin: 5px;
-               border-radius: 2px;
-               min-width: 100px;
-           }
-           QPushButton:hover {
-               background-color: #3D485E;
-           }
-       )");
-        pollutantCardLayout->addWidget(pollutantDetailsButton);
-        contentLayout->addWidget(pollutantCard, i / 2, i % 2);
-
-        // Connect buttons
-        if (i == 0)
-        {
-            connect(pollutantDetailsButton, &QPushButton::clicked, this, &Dashboard::navigateToPollutantOverview);
-        }
-        else if (i == 1)
-        {
-            connect(pollutantDetailsButton, &QPushButton::clicked, this, &Dashboard::navigateToPOPs);
-        }
-        else if (i == 2)
-        {
-            connect(pollutantDetailsButton, &QPushButton::clicked, this, &Dashboard::navigateToLitterIndicators);
-        }
-    }
+    // Add charts and "View Details" buttons from individual pages to the dashboard
+    addChartWithButton(contentLayout, compoundPage->chartView, tr("Fluorinated Compounds"), tr("View Details"), 0, 0, &Dashboard::navigateToFluorinatedCompounds);
+    addChartWithButton(contentLayout, popPage->chartView, tr("Persistent Organic Pollutants (POPs)"), tr("View Details"), 0, 1, &Dashboard::navigateToPOPs);
+    addChartWithButton(contentLayout, pollutantOverviewPage->chartView, tr("Pollutant Overview"), tr("View Details"), 1, 0, &Dashboard::navigateToPollutantOverview);
+    addChartWithButton(contentLayout, litterIndicatorsPage->chartView, tr("Litter Indicators"), tr("View Details"), 1, 1, &Dashboard::navigateToLitterIndicators);
 
     contentWidget->setLayout(contentLayout);
     scrollArea->setWidget(contentWidget);
@@ -165,7 +119,7 @@ Dashboard::Dashboard(QWidget *parent)
     QHBoxLayout *footerLayout = new QHBoxLayout();
     footerLayout->setSpacing(10);
 
-    QStringList footerButtons = {"Help", "User Guide", "Credits"};
+    QStringList footerButtons = {tr("Help"), tr("User Guide"), tr("Credits")};
     for (const QString &buttonText : footerButtons)
     {
         QPushButton *button = new QPushButton(buttonText, this);
@@ -184,11 +138,11 @@ Dashboard::Dashboard(QWidget *parent)
        )");
         footerLayout->addWidget(button);
 
-        if (buttonText == "Help")
+        if (buttonText == tr("Help"))
             connect(button, &QPushButton::clicked, this, &Dashboard::showHelp);
-        else if (buttonText == "User Guide")
+        else if (buttonText == tr("User Guide"))
             connect(button, &QPushButton::clicked, this, &Dashboard::showUserGuide);
-        else if (buttonText == "Credits")
+        else if (buttonText == tr("Credits"))
             connect(button, &QPushButton::clicked, this, &Dashboard::showCredits);
     }
 
@@ -199,15 +153,35 @@ Dashboard::Dashboard(QWidget *parent)
 
 void Dashboard::showHelp()
 {
-    QMessageBox::information(this, "Help", "This is the help information.");
+    QMessageBox::information(this, tr("Help"), tr("This is the help information."));
 }
 
 void Dashboard::showUserGuide()
 {
-    QMessageBox::information(this, "User Guide", "This is the user guide information.");
+    QMessageBox::information(this, tr("User Guide"), tr("This is the user guide information."));
 }
 
 void Dashboard::showCredits()
 {
-    QMessageBox::information(this, "Credits", "These are the credits for data sources.");
+    QMessageBox::information(this, tr("Credits"), tr("These are the credits for data sources."));
+}
+
+void Dashboard::changeLanguage(const QString &language)
+{
+    QString langCode = languageSelector->currentData().toString();
+    if (translator.load(":/translations/app_" + langCode + ".qm")) {
+        qApp->installTranslator(&translator);
+        retranslateUi();
+    }
+}
+
+void Dashboard::retranslateUi()
+{
+    appTitle->setText(tr("Water Quality Monitor"));
+    languageSelector->setItemText(0, tr("English"));
+    languageSelector->setItemText(1, tr("Spanish"));
+    languageSelector->setItemText(2, tr("French"));
+    languageSelector->setItemText(3, tr("Chinese"));
+    languageSelector->setItemText(4, tr("Hindi"));
+    // Update other UI elements similarly
 }

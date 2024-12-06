@@ -14,13 +14,13 @@ class LitterIndicators : public QWidget
 
 public:
     explicit LitterIndicators(QWidget *parent = nullptr);
+    QChartView *chartView;
 
 private:
     void setupUI();
     void loadChartData();
 
     QVBoxLayout *mainLayout; // Layout for arranging widgets
-    QChartView *chartView;   // Widget to display the chart
     QComboBox *locationFilter;
     QComboBox *litterTypeFilter;
     QPushButton *refreshButton;

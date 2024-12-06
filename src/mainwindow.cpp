@@ -163,6 +163,7 @@ void MainWindow::setupUi()
     connect(dashboardPage, &Dashboard::navigateToPollutantOverview, this, &MainWindow::showPollutantOverview);
     connect(dashboardPage, &Dashboard::navigateToPOPs, this, &MainWindow::showPOPs);
     connect(dashboardPage, &Dashboard::navigateToLitterIndicators, this, &MainWindow::showLitterIndicators);
+    connect(dashboardPage, &Dashboard::navigateToFluorinatedCompounds, this, &MainWindow::showFluorinatedCompounds); 
 }
 
 void MainWindow::setupSidebar()
@@ -190,6 +191,12 @@ void MainWindow::showLitterIndicators()
 {
     stackedWidget->setCurrentIndex(3); // Navigate to Litter Indicators Page
     updateSidebarSelection(3);         // Update sidebar selection
+}
+
+void MainWindow::showFluorinatedCompounds()
+{
+    stackedWidget->setCurrentIndex(4); // Navigate to Fluorinated Compounds Page
+    updateSidebarSelection(4);         // Update sidebar selection
 }
 
 void MainWindow::updateSidebarSelection(int index)

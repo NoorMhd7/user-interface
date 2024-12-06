@@ -15,6 +15,7 @@ class Compound : public QWidget
 
 public:
     explicit Compound(QWidget *parent = nullptr);
+    QChartView *chartView;
 
 private:
     void setupUI();                  // Set up the user interface
@@ -22,7 +23,6 @@ private:
     void updateComplianceStatus(QLineSeries *series); // Update compliance status for the series
 
     QVBoxLayout *mainLayout;         // Layout for arranging widgets
-    QChartView *chartView; // Widget to display the chart
     QComboBox *locationFilter;       // Dropdown for location filter
     QComboBox *compoundFilter;       // Dropdown for compound filter
     QPushButton *refreshButton;      // Button to refresh the chart

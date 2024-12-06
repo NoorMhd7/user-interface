@@ -30,6 +30,7 @@ public:
 
     // Update the time-series data based on the selected filters
     void updateTimeSeriesData(QLineSeries *series, const QString &timeRange, const QString &region);
+    QChartView *chartView;
 
 private:
     // Member Variables

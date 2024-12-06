@@ -26,6 +26,7 @@ private slots:
     void showPollutantOverview();
     void showPOPs();
     void showLitterIndicators();
+    void showFluorinatedCompounds();
     void updateSidebarSelection(int index);
 };
 
