@@ -4,6 +4,7 @@
 #include <QComboBox>
 #include <QtCharts>
 #include <QFont>
+#include <QRandomGenerator>
 
 Pop::Pop(QWidget *parent)
     : QWidget(parent)
@@ -17,6 +18,7 @@ Pop::Pop(QWidget *parent)
     QLabel *titleLabel = new QLabel("Organic Pollutants Line Chart", this);
     QFont titleFont("Arial", 24, QFont::Bold);
     titleLabel->setFont(titleFont);
+    titleLabel->setStyleSheet("color: #f55ff3;");
     titleLabel->setAlignment(Qt::AlignCenter);
     mainLayout->addWidget(titleLabel);
 
@@ -24,6 +26,31 @@ Pop::Pop(QWidget *parent)
     locationDropdown = new QComboBox(this);
     locationDropdown->setFixedWidth(200);
     locationDropdown->addItem("Select Location");
+    locationDropdown->setStyleSheet(R"(
+       QComboBox {
+           background-color: #4A5A76;
+           color: #fffff;
+           border: none;
+           padding: 5px;
+           border-radius: 4px;
+       }
+       QComboBox:hover {
+           background-color: #3D485E;
+       }
+       QComboBox::drop-down {
+           border: none;
+       }
+       QComboBox::down-arrow {
+           width: 12px;
+           height: 12px;
+           margin-right: 5px;
+           image: none;
+           border-left: 3px solid #f55ff3;
+           border-bottom: 3px solid #f55ff3;
+           transform: rotate(-45deg);
+       }
+   )");
+
     // Add sample locations
     for (int i = 1; i <= 10; i++)
     {
@@ -31,14 +58,18 @@ Pop::Pop(QWidget *parent)
     }
     mainLayout->addWidget(locationDropdown, 0, Qt::AlignLeft);
 
-    // Create chart
+    // Create chart with dark theme
     auto chart = new QChart();
     chart->setTitle("Pollutant Concentrations Over Time");
     chart->setAnimationOptions(QChart::AllAnimations);
+    chart->setBackgroundBrush(QColor("#2F3A4F"));
+    chart->setTitleBrush(QBrush(Qt::white));
+    chart->legend()->setLabelBrush(QBrush(Qt::white));
 
-    // Create sample data
+    // Create sample data with pink line
     auto series = new QLineSeries();
-    series->setName("Sample Pollutant");
+    series->setName("POP and PCB Pollutants");
+    series->setPen(QPen(QColor("#f55ff3"), 2));
 
     // Use random numbers for sample data
     QRandomGenerator *rng = QRandomGenerator::global();
@@ -48,23 +79,30 @@ Pop::Pop(QWidget *parent)
     }
     chart->addSeries(series);
 
-    // Customize axes
+    // Customize axes with white text
     auto axisX = new QValueAxis;
     axisX->setTitleText("Time Period");
-    axisX->setRange(0, 10);
+    axisX->setRange(01, 12);
+    axisX->setLabelsColor(Qt::white);
+    axisX->setTitleBrush(QBrush(Qt::white));
+    axisX->setGridLineColor(QColor("#4A5A76"));
     chart->addAxis(axisX, Qt::AlignBottom);
     series->attachAxis(axisX);
 
     auto axisY = new QValueAxis;
     axisY->setTitleText("Concentration (μg/L)");
     axisY->setRange(0, 100);
+    axisY->setLabelsColor(Qt::white);
+    axisY->setTitleBrush(QBrush(Qt::white));
+    axisY->setGridLineColor(QColor("#4A5A76"));
     chart->addAxis(axisY, Qt::AlignLeft);
     series->attachAxis(axisY);
 
-    // Chart view
+    // Chart view with dark theme
     chartView = new QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
     chartView->setMinimumHeight(500);
+    chartView->setBackgroundBrush(QColor("#2F3A4F"));
     mainLayout->addWidget(chartView, 1);
 
     // Connect dropdown signal

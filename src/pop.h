@@ -8,6 +8,7 @@ QT_BEGIN_NAMESPACE
 class QVBoxLayout;
 class QLabel;
 class QComboBox;
+class QChartView;
 QT_END_NAMESPACE
 
 class Pop : public QWidget
