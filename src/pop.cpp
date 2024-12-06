@@ -29,7 +29,7 @@ Pop::Pop(QWidget *parent)
     locationDropdown->setStyleSheet(R"(
        QComboBox {
            background-color: #4A5A76;
-           color: #fffff;
+           color: white;
            border: none;
            padding: 5px;
            border-radius: 4px;

@@ -14,6 +14,8 @@ signals:
     void navigateToPollutantOverview();
     void navigateToPOPs();
     void navigateToLitterIndicators();
+    void navigateToCompound();
+    void navigateToData();
 
 private slots:
     void showHelp();

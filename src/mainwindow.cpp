@@ -94,16 +94,16 @@ void MainWindow::setupUi()
     sidebar->setStyleSheet(R"(
     QListWidget {
         background-color: #2F3A4F;
-        color: #FFFFFF;
+        color: white;
         border: none;
     }
     QListWidget::item {
         padding: 15px;
-        color: #FFFFFF;
+        color: white;
     }
     QListWidget::item:selected {
         background-color: #4A5A76;
-        color: #FFFFFF;
+        color: white;
     }
     QListWidget::item:hover {
         background-color: #3D485E;
@@ -163,6 +163,8 @@ void MainWindow::setupUi()
     connect(dashboardPage, &Dashboard::navigateToPollutantOverview, this, &MainWindow::showPollutantOverview);
     connect(dashboardPage, &Dashboard::navigateToPOPs, this, &MainWindow::showPOPs);
     connect(dashboardPage, &Dashboard::navigateToLitterIndicators, this, &MainWindow::showLitterIndicators);
+    connect(dashboardPage, &Dashboard::navigateToCompound, this, &MainWindow::showCompound);
+    connect(dashboardPage, &Dashboard::navigateToData, this, &MainWindow::showData);
 }
 
 void MainWindow::setupSidebar()
@@ -190,6 +192,18 @@ void MainWindow::showLitterIndicators()
 {
     stackedWidget->setCurrentIndex(3); // Navigate to Litter Indicators Page
     updateSidebarSelection(3);         // Update sidebar selection
+}
+
+void MainWindow::showCompound()
+{
+    stackedWidget->setCurrentIndex(4); // Navigate to Compound Page
+    updateSidebarSelection(4);         // Update sidebar selection
+}
+
+void MainWindow::showData()
+{
+    stackedWidget->setCurrentIndex(5); // Navigate to Data Page
+    updateSidebarSelection(5);         // Update sidebar selection
 }
 
 void MainWindow::updateSidebarSelection(int index)

@@ -26,6 +26,8 @@ private slots:
     void showPollutantOverview();
     void showPOPs();
     void showLitterIndicators();
+    void showCompound();
+    void showData();
     void updateSidebarSelection(int index);
 };
 

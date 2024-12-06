@@ -98,7 +98,7 @@ Dashboard::Dashboard(QWidget *parent)
     contentLayout->setContentsMargins(10, 10, 10, 10);
 
     // Pollutant categories
-    QStringList pollutantCategories = {"Pollutant Overview", "POPs", "Litter Indicators", "Fluorinated Compounds", "Compliance"};
+    QStringList pollutantCategories = {"Pollutant Overview", "POPs", "Litter Indicators", "Fluorinated Compounds", "Data"};
     for (int i = 0; i < pollutantCategories.size(); ++i)
     {
         QFrame *pollutantCard = new QFrame(this);
@@ -153,6 +153,14 @@ Dashboard::Dashboard(QWidget *parent)
         else if (i == 2)
         {
             connect(pollutantDetailsButton, &QPushButton::clicked, this, &Dashboard::navigateToLitterIndicators);
+        }
+        else if (i == 3)
+        {
+            connect(pollutantDetailsButton, &QPushButton::clicked, this, &Dashboard::navigateToCompound);
+        }
+        else if (i == 4)
+        {
+            connect(pollutantDetailsButton, &QPushButton::clicked, this, &Dashboard::navigateToData);
         }
     }
 
