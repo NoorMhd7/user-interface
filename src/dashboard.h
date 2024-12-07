@@ -44,12 +44,18 @@ private:
 
     void addChartWithButton(QGridLayout *layout, QChartView *chartView, const QString &title, const QString &buttonText, int row, int col, void (Dashboard::*slot)())
     {
+        if (!chartView) {
+            qDebug() << "Error: chartView is null";
+            return;  // Don't proceed if chartView is null
+        }
         QVBoxLayout *chartLayout = new QVBoxLayout();
         
         QLabel *chartTitle = new QLabel(title, this);
         chartTitle->setStyleSheet("font-size: 18px; font-weight: bold; color: #f55ff3; padding: 5px;");
         chartLayout->addWidget(chartTitle);
 
+        chartView->setMinimumSize(60, 60);
+        chartView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         chartLayout->addWidget(chartView);
 
         QPushButton *detailsButton = new QPushButton(buttonText, this);
@@ -72,6 +78,8 @@ private:
         QWidget *chartWidget = new QWidget(this);
         chartWidget->setLayout(chartLayout);
         layout->addWidget(chartWidget, row, col);
+        layout->setRowStretch(row, 1);
+        layout->setColumnStretch(col, 1);
     }
 };
 

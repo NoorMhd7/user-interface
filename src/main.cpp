@@ -19,10 +19,6 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    QTranslator translator;
-    translator.load(":/translations/app_en.qm");
-    app.installTranslator(&translator);
-
     MainWindow mainWindow;
     QuakeWindow window;
     mainWindow.show();
