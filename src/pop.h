@@ -1,15 +1,22 @@
+// pop.h
 #ifndef POP_H
 #define POP_H
 
 #include <QWidget>
-#include <QtCharts>
+#include <QMap>
+#include <QPair>
+#include <QVector>
+#include <QString>
+#include <QDebug>
+#include <QDir>
 
-QT_BEGIN_NAMESPACE
 class QVBoxLayout;
-class QLabel;
 class QComboBox;
 class QChartView;
-QT_END_NAMESPACE
+class QChart;
+class QLineSeries;
+class QValueAxis;
+class QGraphicsSimpleTextItem;
 
 class Pop : public QWidget
 {
@@ -18,13 +25,33 @@ class Pop : public QWidget
 public:
     explicit Pop(QWidget *parent = nullptr);
 
-private slots:
-    void onLocationChanged(int index);
-
 private:
+    void loadDataFromFile();
+    void initializePollutantInfo();
+    void setupCustomTooltips();
+    void onLocationChanged(int index);
+    void updateTooltip(const QPointF &point, bool state);
+
+    // Data structures
+    struct PollutantInfo
+    {
+        QString name;
+        QString healthRisks;
+        QString safetyLevel;
+        QString importance;
+    };
+
     QVBoxLayout *mainLayout;
     QComboBox *locationDropdown;
     QChartView *chartView;
+    QChart *chart;
+    QLineSeries *series;
+    QValueAxis *axisX;
+    QValueAxis *axisY;
+    QGraphicsSimpleTextItem *m_tooltip;
+
+    QMap<QString, QVector<QPair<double, int>>> locationData;
+    QMap<QString, PollutantInfo> pollutantInfoMap;
 };
 
 #endif // POP_H

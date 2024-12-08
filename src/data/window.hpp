@@ -24,7 +24,6 @@ private slots:
   void setDataLocation();
   void openCSV();
   void displayStats();
-  void about();
 
 private:
   void createMainWidget();
@@ -33,7 +32,6 @@ private:
   void createToolBar();
   void createStatusBar();
   void addFileMenu();
-  void addHelpMenu();
 
   QuakeModel model;
   QString dataLocation; // Changed from pointer to value

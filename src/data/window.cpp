@@ -12,30 +12,58 @@ QuakeWindow::QuakeWindow(QWidget *parent)
   createToolBar();
   createStatusBar();
   addFileMenu();
-  addHelpMenu();
 
   setMinimumWidth(MIN_WIDTH);
   setWindowTitle("Water Quality Monitor");
+
+  // Try to load the default CSV file
+  QString defaultFile = "../src/data/Y-2024.csv"; // Direct file name
+
+  QFileInfo checkFile(defaultFile);
+  if (checkFile.exists() && checkFile.isFile())
+  {
+    try
+    {
+      model.updateFromFile(defaultFile);
+      fileInfo->setText("Current file: Y-2024.csv");
+      table->resizeColumnsToContents();
+    }
+    catch (const std::exception &e)
+    {
+      QMessageBox::warning(this, "Default File Warning",
+                           QString("Failed to load Y-2024.csv: %1").arg(e.what()));
+    }
+  }
 }
 
 void QuakeWindow::createMainWidget()
 {
   QWidget *centralWidget = new QWidget(this);
   QVBoxLayout *layout = new QVBoxLayout(centralWidget);
-
-  // Add welcome label
-  QLabel *welcomeLabel = new QLabel(
-      "Click 'Load CSV File' to begin analyzing water quality data.",
-      centralWidget);
-  welcomeLabel->setAlignment(Qt::AlignCenter);
-  layout->addWidget(welcomeLabel);
+  this->setStyleSheet("background-color: #1E2638;");
 
   // Create table
   table = new QTableView(centralWidget);
   table->setModel(&model);
   table->setAlternatingRowColors(true);
+
+  // Set font for the table content
   QFont tableFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
   table->setFont(tableFont);
+
+  // Style the header
+  QHeaderView *horizontalHeader = table->horizontalHeader();
+  QFont headerFont = horizontalHeader->font();
+  headerFont.setBold(true);
+  horizontalHeader->setFont(headerFont);
+
+  // Set header style using stylesheet
+  QString headerStyle = "QHeaderView::section { color: #f55ff3;;}";
+  horizontalHeader->setStyleSheet(headerStyle);
+
+  // Make headers stretch to fill available space
+  horizontalHeader->setSectionResizeMode(QHeaderView::Stretch);
+
   layout->addWidget(table);
 
   setCentralWidget(centralWidget);
@@ -53,6 +81,7 @@ void QuakeWindow::createButtons()
 void QuakeWindow::createToolBar()
 {
   QToolBar *toolBar = addToolBar("Main");
+  this->setStyleSheet("background-color: #1E2638;");
 
   // Add "Load CSV" button first
   QAction *loadCsvAction = new QAction("Load CSV File", this);
@@ -75,14 +104,6 @@ void QuakeWindow::createToolBar()
             }
         } });
   toolBar->addAction(loadCsvAction);
-  toolBar->addSeparator();
-
-  // Add filter options
-  toolBar->addWidget(new QLabel("Period: "));
-  toolBar->addWidget(period);
-  toolBar->addSeparator();
-  toolBar->addWidget(new QLabel("Filter: "));
-  toolBar->addWidget(significance);
   toolBar->addSeparator();
   toolBar->addWidget(statsButton);
 }
@@ -126,20 +147,6 @@ void QuakeWindow::addFileMenu()
   connect(exitAction, &QAction::triggered, this, &QWidget::close);
 
   fileMenu->addAction(exitAction);
-}
-
-void QuakeWindow::addHelpMenu()
-{
-  QMenu *helpMenu = menuBar()->addMenu("&Help");
-
-  QAction *aboutAction = new QAction("&About", this);
-  connect(aboutAction, &QAction::triggered, this, &QuakeWindow::about);
-
-  QAction *aboutQtAction = new QAction("About &Qt", this);
-  connect(aboutQtAction, &QAction::triggered, qApp, &QApplication::aboutQt);
-
-  helpMenu->addAction(aboutAction);
-  helpMenu->addAction(aboutQtAction);
 }
 
 // Add these implementations to window.cpp
@@ -217,17 +224,4 @@ void QuakeWindow::displayStats()
     QMessageBox::warning(this, "No Data",
                          "Please load data before viewing statistics.");
   }
-}
-
-void QuakeWindow::about()
-{
-  QMessageBox::about(this, "About Water Quality Monitor",
-                     "Water Quality Monitor displays and analyzes water quality data "
-                     "from UK/EU monitoring stations.\n\n"
-                     "Data source: Environment Agency\n\n"
-                     "Features:\n"
-                     "- Load and view water quality measurements\n"
-                     "- View statistics and summaries\n"
-                     "- Monitor pollutant levels\n"
-                     "- Track measurements below detection limits");
 }
