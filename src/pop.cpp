@@ -166,12 +166,12 @@ void Pop::updateTooltip(const QPointF &point, bool state)
 
 void Pop::loadDataFromFile()
 {
-    QString filePath = QCoreApplication::applicationDirPath() + "/../src/data/pop2.txt";
+    QString filePath = QCoreApplication::applicationDirPath() + "/../src/data/pop.txt";
     QFile file(filePath);
 
     if (!file.exists())
     {
-        filePath = "src/data/pop2.txt";
+        filePath = "src/data/pop.txt";
         file.setFileName(filePath);
 
         if (!file.exists())
