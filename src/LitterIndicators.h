@@ -7,6 +7,7 @@
 #include <QComboBox>
 #include <QPushButton>
 #include <QLabel>
+#include "data/model.hpp"
 
 class LitterIndicators : public QWidget
 {
@@ -19,10 +20,11 @@ private:
     void setupUI();
     void loadChartData();
 
+    QuakeModel model;
     QVBoxLayout *mainLayout; // Layout for arranging widgets
     QChartView *chartView;   // Widget to display the chart
     QComboBox *locationFilter;
-    QComboBox *litterTypeFilter;
+    QComboBox *materialTypeFilter;
     QPushButton *refreshButton;
     QLabel *complianceOverview; 
 };

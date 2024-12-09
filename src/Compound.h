@@ -8,6 +8,7 @@
 #include <QComboBox>
 #include <QPushButton>
 #include <QLabel>
+#include "data/model.hpp"
 
 class Compound : public QWidget
 {
@@ -21,6 +22,7 @@ private:
     void loadChartData();            // Load data into the chart
     void updateComplianceStatus(QLineSeries *series); // Update compliance status for the series
 
+    QuakeModel model;
     QVBoxLayout *mainLayout;         // Layout for arranging widgets
     QChartView *chartView; // Widget to display the chart
     QComboBox *locationFilter;       // Dropdown for location filter

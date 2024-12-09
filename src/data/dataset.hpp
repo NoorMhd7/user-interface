@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 #include "quake.hpp" // Make sure this path is correct
+#include <QString>
+#include <QMessageBox>
 
 class QuakeDataset
 {
@@ -14,6 +16,8 @@ public:
 
   double meanMagnitude() const;
   double meanDepth() const;
+  double sumResult(const QString &litterType, const QString &location, const QString &materialType) const;
+  double sumCompound(const QString &compoundType, const QString &location, const QString &time) const;
 
 private:
   std::vector<Quake> data;

@@ -36,6 +36,8 @@ public:
 
   double meanDepth() const { return dataset.meanDepth(); }
   double meanMagnitude() const { return dataset.meanMagnitude(); }
+  double sumResult(const QString &litterType, const QString &location, const QString &materialType) const { return dataset.sumResult(litterType, location, materialType); }
+  double sumCompound(const QString &compoundType, const QString &location, const QString &time) const { return dataset.sumCompound(compoundType, location, time); }
 
 private:
   QuakeDataset dataset;
