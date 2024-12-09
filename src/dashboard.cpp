@@ -38,7 +38,6 @@ Dashboard::Dashboard(QWidget *parent)
        QComboBox:hover {
            background-color: #3D485E;
        }
-    
    )");
     headerLayout->addWidget(languageSelector, 0, Qt::AlignRight);
     mainLayout->addLayout(headerLayout);
@@ -97,72 +96,12 @@ Dashboard::Dashboard(QWidget *parent)
     contentLayout->setSpacing(10);
     contentLayout->setContentsMargins(10, 10, 10, 10);
 
-    // Pollutant categories
-    QStringList pollutantCategories = {"Pollutant Overview", "POPs", "Litter Indicators", "Fluorinated Compounds", "Data"};
-    for (int i = 0; i < pollutantCategories.size(); ++i)
-    {
-        QFrame *pollutantCard = new QFrame(this);
-        pollutantCard->setFrameShape(QFrame::StyledPanel);
-        pollutantCard->setStyleSheet(R"(
-           QFrame {
-               background-color: #1E2638;
-               border-radius: 4px;
-               margin: 5px;
-           }
-       )");
-
-        QVBoxLayout *pollutantCardLayout = new QVBoxLayout(pollutantCard);
-        pollutantCardLayout->setContentsMargins(15, 15, 15, 15);
-        pollutantCardLayout->setSpacing(10);
-
-        QLabel *pollutantTitle = new QLabel(pollutantCategories[i], this);
-        pollutantTitle->setStyleSheet("font-size: 18px; font-weight: bold; color: white;");
-        pollutantCardLayout->addWidget(pollutantTitle);
-
-        QLabel *pollutantSummary = new QLabel("Average Level: 5.2 µg/L\nCompliance: Green", this);
-        pollutantSummary->setStyleSheet("color: white;");
-        pollutantCardLayout->addWidget(pollutantSummary);
-
-        QPushButton *pollutantDetailsButton = new QPushButton("View Details", this);
-        pollutantDetailsButton->setStyleSheet(R"(
-           QPushButton {
-               background-color: #4A5A76;
-               color: white;
-               border: none;
-               padding: 5px;
-               margin: 5px;
-               border-radius: 2px;
-               min-width: 100px;
-           }
-           QPushButton:hover {
-               background-color: #3D485E;
-           }
-       )");
-        pollutantCardLayout->addWidget(pollutantDetailsButton);
-        contentLayout->addWidget(pollutantCard, i / 2, i % 2);
-
-        // Connect buttons
-        if (i == 0)
-        {
-            connect(pollutantDetailsButton, &QPushButton::clicked, this, &Dashboard::navigateToPollutantOverview);
-        }
-        else if (i == 1)
-        {
-            connect(pollutantDetailsButton, &QPushButton::clicked, this, &Dashboard::navigateToPOPs);
-        }
-        else if (i == 2)
-        {
-            connect(pollutantDetailsButton, &QPushButton::clicked, this, &Dashboard::navigateToLitterIndicators);
-        }
-        else if (i == 3)
-        {
-            connect(pollutantDetailsButton, &QPushButton::clicked, this, &Dashboard::navigateToCompound);
-        }
-        else if (i == 4)
-        {
-            connect(pollutantDetailsButton, &QPushButton::clicked, this, &Dashboard::navigateToData);
-        }
-    }
+    // Add pollutant cards
+    addPollutantCard(contentLayout, "Pollutant Overview", "Average Level: 5.4 µg/L\nCompliance: Green", 0, 0, &Dashboard::navigateToPollutantOverview);
+    addPollutantCard(contentLayout, "POPs", "Average Level: 2.1 µg/L\nCompliance: Yellow", 0, 1, &Dashboard::navigateToPOPs);
+    addPollutantCard(contentLayout, "Litter Indicators", "Average Level: 3.7 µg/L\nCompliance: Red", 1, 0, &Dashboard::navigateToLitterIndicators);
+    addPollutantCard(contentLayout, "Fluorinated Compounds", "Average Level: 1.8 µg/L\nCompliance: Green", 1, 1, &Dashboard::navigateToCompound);
+    addPollutantCard(contentLayout, "Data", "Average Level: 4.2 µg/L\nCompliance: Yellow", 2, 0, &Dashboard::navigateToData);
 
     contentWidget->setLayout(contentLayout);
     scrollArea->setWidget(contentWidget);
@@ -203,6 +142,51 @@ Dashboard::Dashboard(QWidget *parent)
     footerLayout->addStretch();
     mainLayout->addLayout(footerLayout);
     setLayout(mainLayout);
+}
+
+void Dashboard::addPollutantCard(QGridLayout *layout, const QString &title, const QString &summary, int row, int col, void (Dashboard::*slot)())
+{
+    QFrame *pollutantCard = new QFrame(this);
+    pollutantCard->setFrameShape(QFrame::StyledPanel);
+    pollutantCard->setStyleSheet(R"(
+       QFrame {
+           background-color: #1E2638;
+           border-radius: 4px;
+           margin: 5px;
+       }
+   )");
+
+    QVBoxLayout *pollutantCardLayout = new QVBoxLayout(pollutantCard);
+    pollutantCardLayout->setContentsMargins(15, 15, 15, 15);
+    pollutantCardLayout->setSpacing(10);
+
+    QLabel *pollutantTitle = new QLabel(title, this);
+    pollutantTitle->setStyleSheet("font-size: 18px; font-weight: bold; color: white;");
+    pollutantCardLayout->addWidget(pollutantTitle);
+
+    QLabel *pollutantSummary = new QLabel(summary, this);
+    pollutantSummary->setStyleSheet("color: white;");
+    pollutantCardLayout->addWidget(pollutantSummary);
+
+    QPushButton *pollutantDetailsButton = new QPushButton("View Details", this);
+    pollutantDetailsButton->setStyleSheet(R"(
+       QPushButton {
+           background-color: #4A5A76;
+           color: white;
+           border: none;
+           padding: 5px;
+           margin: 5px;
+           border-radius: 2px;
+           min-width: 100px;
+       }
+       QPushButton:hover {
+           background-color: #3D485E;
+       }
+   )");
+    pollutantCardLayout->addWidget(pollutantDetailsButton);
+    layout->addWidget(pollutantCard, row, col);
+
+    connect(pollutantDetailsButton, &QPushButton::clicked, this, slot);
 }
 
 void Dashboard::showHelp()
