@@ -9,6 +9,7 @@
 #include <QRegularExpression>
 #include <QCoreApplication>
 #include <algorithm>
+#include "data/config.h"
 
 Pop::Pop(QWidget *parent)
     : QWidget(parent)
@@ -166,63 +167,22 @@ void Pop::updateTooltip(const QPointF &point, bool state)
 
 void Pop::loadDataFromFile()
 {
-    QString filePath = QCoreApplication::applicationDirPath() + "/../src/data/pop.txt";
-    QFile file(filePath);
+    // Get processed data from Config
+    locationData = Config::getProcessedData();
 
-    if (!file.exists())
-    {
-        filePath = "src/data/pop.txt";
-        file.setFileName(filePath);
-
-        if (!file.exists())
-        {
-            return;
-        }
-    }
-
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        return;
-    }
-
-    QTextStream in(&file);
-    locationData.clear();
+    // Clear and initialize dropdown
     locationDropdown->clear();
     locationDropdown->addItem("Select Location");
 
-    while (!in.atEnd())
+    // Get sorted list of locations
+    QStringList locations = locationData.keys();
+    locations.sort(); // Sort alphabetically
+
+    // Add all locations to dropdown
+    for (const QString &location : locations)
     {
-        QString line = in.readLine();
-        int firstCommaPos = line.indexOf(',');
-        if (firstCommaPos == -1)
-            continue;
-
-        QString location = line.left(firstCommaPos).trimmed();
         locationDropdown->addItem(location);
-
-        int arrayStart = line.indexOf('[');
-        int arrayEnd = line.indexOf(']');
-        if (arrayStart == -1 || arrayEnd == -1)
-            continue;
-
-        QString coordsStr = line.mid(arrayStart + 1, arrayEnd - arrayStart - 1);
-        QVector<QPair<double, int>> coords;
-
-        QRegularExpression re("\\((\\d*\\.?\\d*),\\s*(\\d+)\\)");
-        QRegularExpressionMatchIterator i = re.globalMatch(coordsStr);
-
-        while (i.hasNext())
-        {
-            QRegularExpressionMatch match = i.next();
-            double result = match.captured(1).toDouble();
-            int month = match.captured(2).toInt();
-            coords.append(qMakePair(result, month));
-        }
-
-        locationData[location] = coords;
     }
-
-    file.close();
 }
 
 void Pop::onLocationChanged(int index)

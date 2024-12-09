@@ -14,10 +14,15 @@
 #include <QMenuBar>
 #include <QToolBar>
 #include <QStatusBar>
+#include "data/config.h"
+#include "data/data_processors.h"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
+
+    DataProcessor processor;
+    processor.processData();
 
     MainWindow mainWindow;
     QuakeWindow window;

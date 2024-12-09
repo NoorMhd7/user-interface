@@ -23,6 +23,8 @@ set(PROJECT_SOURCES
     src/data/quake.cpp
     src/data/model.cpp
     src/data/dataset.cpp
+    src/data/data_processors.cpp
+    src/data/config.cpp
 )
 
 add_executable(water-quality-qt
