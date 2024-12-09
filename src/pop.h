@@ -9,6 +9,7 @@
 #include <QString>
 #include <QDebug>
 #include <QDir>
+#include "data/config.h"
 
 class QVBoxLayout;
 class QComboBox;
