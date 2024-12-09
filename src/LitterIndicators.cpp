@@ -62,7 +62,7 @@ void LitterIndicators::loadChartData()
     // Load data from model
     try
     {
-        model.updateFromFile("D:/ComputerProg/Year2/UserInterface/Shared/user-interface/src/data/Y-2024.csv");
+        model.updateFromFile("../src/data/Y-2024.csv");
     }
     catch (const std::exception &error)
     {
