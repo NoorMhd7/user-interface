@@ -2,6 +2,7 @@
 #define DASHBOARD_H
 
 #include <QWidget>
+#include <QGridLayout> // Include QGridLayout header
 
 class Dashboard : public QWidget
 {
@@ -21,6 +22,9 @@ private slots:
     void showHelp();
     void showUserGuide();
     void showCredits();
+
+private:
+    void addPollutantCard(QGridLayout *layout, const QString &title, const QString &summary, int row, int col, void (Dashboard::*slot)());
 };
 
 #endif // DASHBOARD_H
