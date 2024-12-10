@@ -81,7 +81,7 @@ void QuakeWindow::createButtons()
 void QuakeWindow::createToolBar()
 {
   QToolBar *toolBar = addToolBar("Main");
-  this->setStyleSheet("background-color: #1E2638;");
+  this->setStyleSheet("background-color: #4A5A76;");
 
   // Add "Load CSV" button first
   QAction *loadCsvAction = new QAction("Load CSV File", this);
