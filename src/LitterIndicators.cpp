@@ -55,8 +55,8 @@ void LitterIndicators::setupUI()
     filterLayout->addWidget(materialTypeFilter);
 
     // Giving the filters a little more room to breathe
-    locationFilter->setFixedHeight(40);     
-    materialTypeFilter->setFixedHeight(40); 
+    locationFilter->setFixedHeight(40);
+    materialTypeFilter->setFixedHeight(40);
 
     // Put the filters into the main layout
     mainLayout->addLayout(filterLayout);
@@ -72,7 +72,7 @@ void LitterIndicators::setupUI()
 
     // Add a description label for the chart, you know, to explain stuff
     descriptionLabel = new QLabel(this);
-    descriptionLabel->setWordWrap(true); 
+    descriptionLabel->setWordWrap(true);
     descriptionLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
     descriptionLabel->setStyleSheet(
         "color: white; "
@@ -82,8 +82,7 @@ void LitterIndicators::setupUI()
         "background-color: rgba(0, 0, 0, 0.6); "
         "border-radius: 8px; "
         "padding: 15px; "
-        "margin: 10px 0px;"
-    );
+        "margin: 10px 0px;");
 
     // Stick the description label in the layout
     mainLayout->addWidget(descriptionLabel);
@@ -96,7 +95,7 @@ void LitterIndicators::loadChartData()
     // Get data from the model (hopefully it's all good)
     try
     {
-        model.updateFromFile(Config::CSV_FILE);
+        model.updateFromFile(Config::UNIVERSAL_FILE_PATH);
     }
     catch (const std::exception &error)
     {
@@ -153,8 +152,8 @@ void LitterIndicators::loadChartData()
 
     // X-axis with all the materials
     QBarCategoryAxis *axisX = new QBarCategoryAxis();
-    axisX->append(materialTypes);             // The categories (material types)
-    axisX->setLabelsBrush(QBrush(Qt::white)); // Make the labels white
+    axisX->append(materialTypes);                                // The categories (material types)
+    axisX->setLabelsBrush(QBrush(Qt::white));                    // Make the labels white
     axisX->setGridLinePen(QPen(QColor(255, 255, 255, 50), 0.5)); // Subtle grid lines
     chart->addAxis(axisX, Qt::AlignBottom);
     series->attachAxis(axisX);
@@ -162,8 +161,8 @@ void LitterIndicators::loadChartData()
     // Y-axis (count of the materials)
     QValueAxis *axisY = new QValueAxis();
     axisY->setTitleText(tr("Count"));
-    axisY->setTitleBrush(QBrush(Qt::white));  // White title
-    axisY->setLabelsBrush(QBrush(Qt::white)); // White labels
+    axisY->setTitleBrush(QBrush(Qt::white));                     // White title
+    axisY->setLabelsBrush(QBrush(Qt::white));                    // White labels
     axisY->setGridLinePen(QPen(QColor(255, 255, 255, 50), 0.5)); // Subtle grid lines
     if (!materialCounts.isEmpty() && !std::all_of(materialCounts.begin(), materialCounts.end(), [](double c)
                                                   { return c == 0; }))
@@ -186,13 +185,7 @@ void LitterIndicators::loadChartData()
     chart->legend()->setLabelBrush(QBrush(Qt::white));
 
     // Update the description label to reflect the data
-    QString descriptionText = tr("Physical Litter Counts in ") + selectedLocation + tr(" and in ") + selectedMaterialType + tr(":\n\n")
-                              + tr("Plastic: ") + QString::number(materialCounts[0]) 
-                              + "\n" + tr("Animal Faeces: ") + QString::number(materialCounts[1]) 
-                              + "\n" + tr("Sewage Debris: ") + QString::number(materialCounts[2]) 
-                              + "\n" + tr("Tarry Residues: ") + QString::number(materialCounts[3]) 
-                              + "\n" + tr("Glass: ") + QString::number(materialCounts[4]) 
-                              + "\n" + tr("Metal Parts: ") + QString::number(materialCounts[5]);
+    QString descriptionText = tr("Physical Litter Counts in ") + selectedLocation + tr(" and in ") + selectedMaterialType + tr(":\n\n") + tr("Plastic: ") + QString::number(materialCounts[0]) + "\n" + tr("Animal Faeces: ") + QString::number(materialCounts[1]) + "\n" + tr("Sewage Debris: ") + QString::number(materialCounts[2]) + "\n" + tr("Tarry Residues: ") + QString::number(materialCounts[3]) + "\n" + tr("Glass: ") + QString::number(materialCounts[4]) + "\n" + tr("Metal Parts: ") + QString::number(materialCounts[5]);
 
     descriptionLabel->setText(descriptionText);
 }
