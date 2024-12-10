@@ -20,7 +20,7 @@ Pop::Pop(QWidget *parent)
     mainLayout->setSpacing(15);
 
     // Title
-    QLabel *titleLabel = new QLabel("Organic Pollutants Line Chart", this);
+    QLabel *titleLabel = new QLabel(tr("Organic Pollutants Line Chart"), this);
     QFont titleFont("Arial", 24, QFont::Bold);
     titleLabel->setFont(titleFont);
     titleLabel->setStyleSheet("color: #f55ff3;");
@@ -53,11 +53,15 @@ Pop::Pop(QWidget *parent)
             border-bottom: 3px solid #f55ff3;
             transform: rotate(-45deg);
         }
+
+        QComboBox QAbstractItemView {
+            background-color: #2F3A4F;
+    }
     )");
 
     mainLayout->addWidget(locationDropdown, 0, Qt::AlignLeft);
 
-    // Create chart with dark theme
+    // Create chart and axes
     chart = new QChart();
     chart->setTitle("Pollutant Concentrations Trends Over Time");
     chart->setAnimationOptions(QChart::AllAnimations);
@@ -65,64 +69,62 @@ Pop::Pop(QWidget *parent)
     chart->setTitleBrush(QBrush(Qt::white));
     chart->legend()->setLabelBrush(QBrush(Qt::white));
 
-    // Create series
-    series = new QLineSeries();
-    series->setName("POP and PCB Pollutants");
-    series->setPen(QPen(QColor("#f55ff3"), 2));
-    chart->addSeries(series);
-
-    // Customize axes with white text
+    // Initialize axes
     axisX = new QValueAxis;
-    axisX->setTitleText("Month");
-    axisX->setRange(0, 12);
+    axisY = new QValueAxis;
+
+    // Configure axes
+    axisX->setTitleText(tr("Month"));
+    axisX->setRange(0, 9);
     axisX->setLabelsColor(Qt::white);
     axisX->setTitleBrush(QBrush(Qt::white));
     axisX->setGridLineColor(QColor("#4A5A76"));
     chart->addAxis(axisX, Qt::AlignBottom);
-    series->attachAxis(axisX);
 
-    axisY = new QValueAxis;
-    axisY->setTitleText("Concentration (μg/L)");
-    axisY->setRange(0, 100);
+    axisY->setTitleText(tr("Concentration (μg/L)"));
+    axisY->setRange(0, 1);
     axisY->setLabelsColor(Qt::white);
     axisY->setTitleBrush(QBrush(Qt::white));
     axisY->setGridLineColor(QColor("#4A5A76"));
     chart->addAxis(axisY, Qt::AlignLeft);
+
+    // Add series
+    series = new QLineSeries();
+    series->setName(tr("POP and PCB Pollutants"));
+    series->setPen(QPen(QColor("#f55ff3"), 2));
+    chart->addSeries(series);
+    series->attachAxis(axisX);
     series->attachAxis(axisY);
 
-    // Chart view with dark theme
+    // Chart view
     chartView = new QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
     chartView->setMinimumHeight(500);
     chartView->setBackgroundBrush(QColor("#2F3A4F"));
     mainLayout->addWidget(chartView, 1);
 
-    // Initialize tooltip and pollutant info
-    initializePollutantInfo();
+    // Create a gradient for the plot area (grid only)
+    QLinearGradient plotAreaGradient;
+    plotAreaGradient.setStart(QPointF(0, 0));
+    plotAreaGradient.setFinalStop(QPointF(0, 1));
+
+    chart->setPlotAreaBackgroundVisible(false);
+    addColorRanges();
+    connect(chart, &QChart::plotAreaChanged, this, &Pop::addColorRanges);
+
+    // Customize grid lines
+    axisY->setGridLineVisible(true);
+    axisY->setMinorGridLineVisible(true);
+    axisY->setMinorTickCount(4);
+    axisY->setGridLineColor(QColor(74, 90, 118, 100));
+    axisY->setMinorGridLineColor(QColor(74, 90, 118, 50));
+
     setupCustomTooltips();
 
-    // Load data and connect signals
-    loadDataFromFile();
     connect(locationDropdown, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &Pop::onLocationChanged);
-}
-
-void Pop::initializePollutantInfo()
-{
-    PollutantInfo pcbInfo;
-    pcbInfo.name = "PCB";
-    pcbInfo.healthRisks = "Can affect immune system, nervous system, and endocrine system";
-    pcbInfo.safetyLevel = "Safe level: < 0.0005 μg/L";
-    pcbInfo.importance = "Regular monitoring required for ecosystem health";
-
-    PollutantInfo pbdeInfo;
-    pbdeInfo.name = "PBDE";
-    pbdeInfo.healthRisks = "May affect thyroid hormone levels and neurodevelopment";
-    pbdeInfo.safetyLevel = "Safe level: < 0.0001 μg/L";
-    pbdeInfo.importance = "Bioaccumulates in aquatic life";
-
-    pollutantInfoMap["PCB"] = pcbInfo;
-    pollutantInfoMap["PBDE"] = pbdeInfo;
+    // Load data and connect signals
+    loadDataFromFile();
 }
 
 void Pop::setupCustomTooltips()
@@ -146,10 +148,7 @@ void Pop::updateTooltip(const QPointF &point, bool state)
         QString tooltipText = QString(
                                   "Location: %1\n"
                                   "Month: %2\n"
-                                  "Value: %3 μg/L\n"
-                                  "Safety Level: < 0.0005 μg/L\n"
-                                  "Health Risks: Persistent organic pollutants\n"
-                                  "can accumulate in the food chain")
+                                  "Value: %3 μg/L\n")
                                   .arg(location)
                                   .arg(int(point.x()))
                                   .arg(point.y(), 0, 'f', 6);
@@ -170,6 +169,9 @@ void Pop::loadDataFromFile()
     // Get processed data from Config
     locationData = Config::getProcessedData();
 
+    // Temporarily disconnect the signal to prevent multiple updates
+    locationDropdown->blockSignals(true);
+
     // Clear and initialize dropdown
     locationDropdown->clear();
     locationDropdown->addItem("Select Location");
@@ -182,6 +184,17 @@ void Pop::loadDataFromFile()
     for (const QString &location : locations)
     {
         locationDropdown->addItem(location);
+    }
+
+    // Re-enable signals
+    locationDropdown->blockSignals(false);
+
+    // Set the first actual location (index 1) as default if there are locations
+    if (locationDropdown->count() > 1)
+    {
+        locationDropdown->setCurrentIndex(1);
+        // Explicitly call onLocationChanged since we blocked signals
+        onLocationChanged(1);
     }
 }
 
@@ -202,7 +215,7 @@ void Pop::onLocationChanged(int index)
         QMap<int, QPair<double, int>> monthData; // month -> (sum, count)
 
         // Calculate sum and count for each month and track min/max months
-        int minMonth = 12;
+        int minMonth = 9;
         int maxMonth = 1;
         for (const auto &coord : originalCoords)
         {
@@ -273,10 +286,87 @@ void Pop::onLocationChanged(int index)
         }
         else
         {
-            axisX->setRange(0, 12);
+            axisX->setRange(0, 9);
         }
+        addColorRanges();
 
         // Update chart title to show the actual coordinate count
         chart->setTitle(QString("Average POP trends over time (%1 measurements)").arg(originalCoords.size()));
+    }
+}
+
+void Pop::addColorRanges()
+{
+    // Clear existing ranges
+    for (auto item : colorRanges)
+    {
+        chart->scene()->removeItem(item);
+        delete item;
+    }
+    colorRanges.clear();
+
+    // Get current Y-axis range
+    double yMin = axisY->min();
+    double yMax = axisY->max();
+
+    // Only draw ranges that are within the visible range
+    // Define our threshold values
+    const double greenMin = 0.00001;
+    const double greenMax = 0.0009999;
+    const double yellowMin = 0.001;
+    const double yellowMax = 0.00499999;
+    const double redMin = 0.005;
+
+    // Get plot area
+    QRectF plotArea = chart->plotArea();
+
+    // Colors with transparency
+    const QColor greenColor(107, 203, 119, 40);
+    const QColor yellowColor(255, 217, 61, 40);
+    const QColor redColor(255, 107, 107, 40);
+
+    // Helper function to map value to pixel position
+    auto mapToPixel = [&](double value)
+    {
+        return plotArea.bottom() - ((value - yMin) / (yMax - yMin) * plotArea.height());
+    };
+
+    // Only draw green range if it's in view
+    if (greenMin < yMax && greenMax > yMin)
+    {
+        double top = mapToPixel(std::min(greenMax, yMax));
+        double bottom = mapToPixel(std::max(greenMin, yMin));
+        QGraphicsRectItem *greenRange = new QGraphicsRectItem();
+        greenRange->setRect(plotArea.left(), top, plotArea.width(), bottom - top);
+        greenRange->setBrush(greenColor);
+        greenRange->setPen(Qt::NoPen);
+        chart->scene()->addItem(greenRange);
+        colorRanges << greenRange;
+    }
+
+    // Only draw yellow range if it's in view
+    if (yellowMin < yMax && yellowMax > yMin)
+    {
+        double top = mapToPixel(std::min(yellowMax, yMax));
+        double bottom = mapToPixel(std::max(yellowMin, yMin));
+        QGraphicsRectItem *yellowRange = new QGraphicsRectItem();
+        yellowRange->setRect(plotArea.left(), top, plotArea.width(), bottom - top);
+        yellowRange->setBrush(yellowColor);
+        yellowRange->setPen(Qt::NoPen);
+        chart->scene()->addItem(yellowRange);
+        colorRanges << yellowRange;
+    }
+
+    // Only draw red range if it's in view
+    if (redMin < yMax)
+    {
+        double top = mapToPixel(yMax);
+        double bottom = mapToPixel(std::max(redMin, yMin));
+        QGraphicsRectItem *redRange = new QGraphicsRectItem();
+        redRange->setRect(plotArea.left(), top, plotArea.width(), bottom - top);
+        redRange->setBrush(redColor);
+        redRange->setPen(Qt::NoPen);
+        chart->scene()->addItem(redRange);
+        colorRanges << redRange;
     }
 }

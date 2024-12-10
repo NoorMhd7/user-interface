@@ -1,4 +1,3 @@
-// pop.h
 #ifndef POP_H
 #define POP_H
 
@@ -6,10 +5,6 @@
 #include <QMap>
 #include <QPair>
 #include <QVector>
-#include <QString>
-#include <QDebug>
-#include <QDir>
-#include "data/config.h"
 
 class QVBoxLayout;
 class QComboBox;
@@ -18,6 +13,7 @@ class QChart;
 class QLineSeries;
 class QValueAxis;
 class QGraphicsSimpleTextItem;
+class QGraphicsRectItem;
 
 class Pop : public QWidget
 {
@@ -26,21 +22,14 @@ class Pop : public QWidget
 public:
     explicit Pop(QWidget *parent = nullptr);
 
-private:
-    void loadDataFromFile();
-    void initializePollutantInfo();
-    void setupCustomTooltips();
+private slots:
     void onLocationChanged(int index);
     void updateTooltip(const QPointF &point, bool state);
+    void addColorRanges(); // Add this new function
 
-    // Data structures
-    struct PollutantInfo
-    {
-        QString name;
-        QString healthRisks;
-        QString safetyLevel;
-        QString importance;
-    };
+private:
+    void loadDataFromFile();
+    void setupCustomTooltips();
 
     QVBoxLayout *mainLayout;
     QComboBox *locationDropdown;
@@ -50,9 +39,18 @@ private:
     QValueAxis *axisX;
     QValueAxis *axisY;
     QGraphicsSimpleTextItem *m_tooltip;
+    QList<QGraphicsRectItem *> colorRanges; // Add this new member variable
 
-    QMap<QString, QVector<QPair<double, int>>> locationData;
+    struct PollutantInfo
+    {
+        QString name;
+        QString healthRisks;
+        QString safetyLevel;
+        QString importance;
+    };
+
     QMap<QString, PollutantInfo> pollutantInfoMap;
+    QMap<QString, QVector<QPair<double, int>>> locationData;
 };
 
 #endif // POP_H
