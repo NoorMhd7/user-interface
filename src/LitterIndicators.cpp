@@ -9,98 +9,128 @@
 #include <QValueAxis>
 #include <QMessageBox>
 #include <QString>
+#include <QFont>
+#include <QtDebug>
+#include "data/config.h"
 
 LitterIndicators::LitterIndicators(QWidget *parent)
     : QWidget(parent)
 {
-    setupUI();       // Initialize the UI components
-    loadChartData(); // Load initial chart data
+    setupUI();       // Set up the user interface
+    loadChartData(); // Get some initial chart data
 }
 
 void LitterIndicators::setupUI()
 {
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
-    // Filters and refresh button
+    // Horizontal layout for filters, you know, to choose location and material
+    QHBoxLayout *filterLayout = new QHBoxLayout();
+
+    // Adding location filter (lots of places to pick from!)
     locationFilter = new QComboBox(this);
     locationFilter->addItem("All Locations");
-    // Add more locations here
     locationFilter->addItem("BRIDLINGTON NORTH (08000)");
     locationFilter->addItem("CAYTON BAY (07500)");
     locationFilter->addItem("DANES DYKE - FLAMBOROUGH (07950)");
     locationFilter->addItem("FILEY (07600)");
     locationFilter->addItem("FLAMBOROUGH SOUTH LANDING (07900)");
-    layout->addWidget(locationFilter);
 
+    // Set the first item (All Locations) to bold
+    locationFilter->setItemData(0, QFont("Arial", 10, QFont::Bold), Qt::FontRole);
+    locationFilter->setStyleSheet("QComboBox QAbstractItemView::item { padding: 10px; }");
+
+    filterLayout->addWidget(locationFilter);
+
+    // Adding material type filter (more choices)
     materialTypeFilter = new QComboBox(this);
     materialTypeFilter->addItem("All Water Body Types");
-    // Add more material types here
     materialTypeFilter->addItem("SEA WATER");
     materialTypeFilter->addItem("RIVER / RUNNING SURFACE WATER");
-    layout->addWidget(materialTypeFilter);
 
-    refreshButton = new QPushButton("Refresh", this);
-    layout->addWidget(refreshButton);
+    // Bold for the first item here too
+    materialTypeFilter->setItemData(0, QFont("Arial", 10, QFont::Bold), Qt::FontRole);
+    materialTypeFilter->setStyleSheet("QComboBox QAbstractItemView::item { padding: 10px; }");
 
-    connect(refreshButton, &QPushButton::clicked, this, &LitterIndicators::loadChartData);
+    filterLayout->addWidget(materialTypeFilter);
 
-    // Chart view
-    chartView = new QChartView(this); // Initialize chartView
+    // Giving the filters a little more room to breathe
+    locationFilter->setFixedHeight(40);     
+    materialTypeFilter->setFixedHeight(40); 
+
+    // Put the filters into the main layout
+    mainLayout->addLayout(filterLayout);
+
+    // Connect filters to refresh chart data whenever something changes
+    connect(locationFilter, &QComboBox::currentIndexChanged, this, &LitterIndicators::loadChartData);
+    connect(materialTypeFilter, &QComboBox::currentIndexChanged, this, &LitterIndicators::loadChartData);
+
+    // The chart! Where the magic happens.
+    chartView = new QChartView(this); // It's just a chart, no big deal
     chartView->setRenderHint(QPainter::Antialiasing);
-    layout->addWidget(chartView);
+    mainLayout->addWidget(chartView);
 
-    complianceOverview = new QLabel(this);
-    complianceOverview->setText("Compliance Overview: All monitored locations comply with standards.");
-    complianceOverview->setStyleSheet("font-weight: bold; color: green; margin-top: 10px;");
-    layout->addWidget(complianceOverview);
+    // Add a description label for the chart, you know, to explain stuff
+    descriptionLabel = new QLabel(this);
+    descriptionLabel->setWordWrap(true); 
+    descriptionLabel->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+    descriptionLabel->setStyleSheet(
+        "color: white; "
+        "font-size: 14px; "
+        "font-family: Arial, sans-serif; "
+        "font-weight: bold; "
+        "background-color: rgba(0, 0, 0, 0.6); "
+        "border-radius: 8px; "
+        "padding: 15px; "
+        "margin: 10px 0px;"
+    );
 
-    setLayout(layout);
+    // Stick the description label in the layout
+    mainLayout->addWidget(descriptionLabel);
+
+    setLayout(mainLayout);
 }
 
 void LitterIndicators::loadChartData()
 {
-    // Load data from model
+    // Get data from the model (hopefully it's all good)
     try
     {
-        model.updateFromFile("../src/data/Y-2024.csv");
+        model.updateFromFile(Config::CSV_FILE);
     }
     catch (const std::exception &error)
     {
         QMessageBox::critical(this, "CSV File Error", error.what());
-        return;
+        return; // Stop here if the data doesn't load
     }
 
-    QStringList materialTypes = {"Plastic", "Animal Faeces", "Sewage Debris",
-                                 "Tarry Residues", "Glass", "Metal Parts"};
+    QStringList materialTypes = {tr("Plastic"), tr("Animal Faeces"), tr("Sewage Debris"),
+                                 tr("Tarry Residues"), tr("Glass"), tr("Metal Parts")};
 
     QList<double> materialCounts;
 
-    // Get selected location and material type from filters
+    // What are we looking at today? Location and material type
     QString selectedLocation = locationFilter->currentText();
     QString selectedMaterialType = materialTypeFilter->currentText();
 
-    // List of data types corresponding to material types
     QStringList litterTypes = {"BWP - O.L.", "BWP - A.F.", "SewageDebris",
                                "TarryResidus", "No of dogs", "BWP - A.B."};
 
     for (const QString &type : litterTypes)
     {
-        // Filter by location and material type
         double count = model.sumResult(type, selectedLocation, selectedMaterialType);
-        // if (selectedMaterialType != "All Water Body Types" && selectedMaterialType != type) {
-        //     continue;  // Skip this type if it doesn't match the selected material type
-        // }
-
         if (std::isnan(count))
         {
             qWarning() << "Invalid result for" << type;
-            count = 0.0;
+            count = 0.0; // Fix any weirdness
         }
         materialCounts.append(count);
     }
 
-    // Create chart
-    QBarSet *barSet = new QBarSet("Material Counts");
+    // Make a chart set with the data
+    QBarSet *barSet = new QBarSet(tr("Material Counts"));
+    barSet->setPen(QPen(QColor("#f55ff3"), 2));
+    barSet->setColor(QColor("#f55ff3"));
     for (double count : materialCounts)
     {
         *barSet << count;
@@ -111,17 +141,30 @@ void LitterIndicators::loadChartData()
 
     QChart *chart = new QChart();
     chart->addSeries(series);
-    chart->setTitle("Litter Types and Their Counts");
+    chart->setTitle(tr("Litter Types and Their Counts"));
+    chart->setTitleBrush(QBrush(Qt::white)); // Make the title pop with white
     chart->setAnimationOptions(QChart::SeriesAnimations);
 
-    // Set X-axis with user-friendly names
+    // Transparent background so the focus is on the chart
+    chart->setBackgroundBrush(Qt::NoBrush);
+    chart->setBackgroundVisible(false);
+    chart->setPlotAreaBackgroundBrush(Qt::NoBrush);
+    chart->setPlotAreaBackgroundVisible(false);
+
+    // X-axis with all the materials
     QBarCategoryAxis *axisX = new QBarCategoryAxis();
-    axisX->append(materialTypes); // Use material types for X-axis
+    axisX->append(materialTypes);             // The categories (material types)
+    axisX->setLabelsBrush(QBrush(Qt::white)); // Make the labels white
+    axisX->setGridLinePen(QPen(QColor(255, 255, 255, 50), 0.5)); // Subtle grid lines
     chart->addAxis(axisX, Qt::AlignBottom);
     series->attachAxis(axisX);
 
+    // Y-axis (count of the materials)
     QValueAxis *axisY = new QValueAxis();
-    axisY->setTitleText("Count");
+    axisY->setTitleText(tr("Count"));
+    axisY->setTitleBrush(QBrush(Qt::white));  // White title
+    axisY->setLabelsBrush(QBrush(Qt::white)); // White labels
+    axisY->setGridLinePen(QPen(QColor(255, 255, 255, 50), 0.5)); // Subtle grid lines
     if (!materialCounts.isEmpty() && !std::all_of(materialCounts.begin(), materialCounts.end(), [](double c)
                                                   { return c == 0; }))
     {
@@ -134,5 +177,22 @@ void LitterIndicators::loadChartData()
     chart->addAxis(axisY, Qt::AlignLeft);
     series->attachAxis(axisY);
 
-    chartView->setChart(chart); // Set the chart to chartView
+    // Make the chart pretty and stick it in the chartView
+    chartView->setChart(chart);
+    chartView->setRenderHint(QPainter::Antialiasing);
+    chartView->setBackgroundBrush(Qt::NoBrush);
+    chartView->setStyleSheet("background: transparent;");
+    chart->setTitleBrush(QBrush(Qt::white));
+    chart->legend()->setLabelBrush(QBrush(Qt::white));
+
+    // Update the description label to reflect the data
+    QString descriptionText = tr("Physical Litter Counts in ") + selectedLocation + tr(" and in ") + selectedMaterialType + tr(":\n\n")
+                              + tr("Plastic: ") + QString::number(materialCounts[0]) 
+                              + "\n" + tr("Animal Faeces: ") + QString::number(materialCounts[1]) 
+                              + "\n" + tr("Sewage Debris: ") + QString::number(materialCounts[2]) 
+                              + "\n" + tr("Tarry Residues: ") + QString::number(materialCounts[3]) 
+                              + "\n" + tr("Glass: ") + QString::number(materialCounts[4]) 
+                              + "\n" + tr("Metal Parts: ") + QString::number(materialCounts[5]);
+
+    descriptionLabel->setText(descriptionText);
 }

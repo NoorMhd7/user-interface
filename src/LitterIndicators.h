@@ -21,12 +21,13 @@ private:
     void loadChartData();
 
     QuakeModel model;
-    QVBoxLayout *mainLayout; // Layout for arranging widgets
-    QChartView *chartView;   // Widget to display the chart
+    QVBoxLayout *mainLayout; 
+    QChartView *chartView;   
     QComboBox *locationFilter;
     QComboBox *materialTypeFilter;
     QPushButton *refreshButton;
     QLabel *complianceOverview; 
+    QLabel *descriptionLabel; 
 };
 
-#endif // EXAMPLEPAGE_H2
+#endif 
