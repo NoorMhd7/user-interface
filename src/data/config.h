@@ -10,6 +10,7 @@
 class Config
 {
 public:
+    static const QString UNIVERSAL_FILE_PATH;
     static const QString CSV_FILE;
 
     // Shared data structure for all classes
@@ -21,4 +22,4 @@ public:
     static const LocationData &getProcessedData();
 };
 
-#endif
+#endif // CONFIG_H

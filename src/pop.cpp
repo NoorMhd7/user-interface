@@ -121,10 +121,10 @@ Pop::Pop(QWidget *parent)
 
     setupCustomTooltips();
 
-    // Load data and connect signals
-    loadDataFromFile();
     connect(locationDropdown, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &Pop::onLocationChanged);
+    // Load data and connect signals
+    loadDataFromFile();
 }
 
 void Pop::setupCustomTooltips()
@@ -169,6 +169,9 @@ void Pop::loadDataFromFile()
     // Get processed data from Config
     locationData = Config::getProcessedData();
 
+    // Temporarily disconnect the signal to prevent multiple updates
+    locationDropdown->blockSignals(true);
+
     // Clear and initialize dropdown
     locationDropdown->clear();
     locationDropdown->addItem("Select Location");
@@ -181,6 +184,17 @@ void Pop::loadDataFromFile()
     for (const QString &location : locations)
     {
         locationDropdown->addItem(location);
+    }
+
+    // Re-enable signals
+    locationDropdown->blockSignals(false);
+
+    // Set the first actual location (index 1) as default if there are locations
+    if (locationDropdown->count() > 1)
+    {
+        locationDropdown->setCurrentIndex(1);
+        // Explicitly call onLocationChanged since we blocked signals
+        onLocationChanged(1);
     }
 }
 
