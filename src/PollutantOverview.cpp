@@ -1,401 +1,298 @@
 #include "PollutantOverview.h"
-#include <QVBoxLayout>
-#include <QLabel>
-#include <QHBoxLayout>
-#include <QLineEdit>
-#include <QLineSeries>
-#include <QCompleter>
+#include <QtCharts/QValueAxis>
+#include <QtCharts/QChart>
+#include <QtCharts/QLineSeries>
+#include <QtCharts/QCategoryAxis>
+
 #include <QStringList>
-#include <QStringListModel>
-#include <QComboBox>
-#include <QPushButton>
-#include <QFrame>
-#include <QtCharts>
+#include <QGraphicsSimpleTextItem>
+#include <QMouseEvent>
+#include <QtDebug>
+#include <QMessageBox>
+#include "data/config.h"
 
 PollutantOverview::PollutantOverview(QWidget *parent)
     : QWidget(parent)
 {
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    setupUI();
+    loadInitialData();
+}
 
-    // Header Section
-    QHBoxLayout *headerLayout = new QHBoxLayout();
-    QLabel *pageTitle = new QLabel("Pollutant Overview", this);
-    pageTitle->setStyleSheet("font-size: 24px; font-weight: bold;");
-    headerLayout->addWidget(pageTitle);
+void PollutantOverview::setupUI()
+{
+    // Main layout
+    mainLayout = new QVBoxLayout(this);
+    mainLayout->setContentsMargins(20, 20, 20, 20);
+    mainLayout->setSpacing(15);
 
-    // Search Bar
-    QLineEdit *searchBar = new QLineEdit(this);
-    searchBar->setPlaceholderText("Search pollutants by name...");
-    searchBar->setMaximumWidth(550);
-    headerLayout->addWidget(searchBar);
-    mainLayout->addLayout(headerLayout);
+    // Title
+    QLabel *titleLabel = new QLabel(tr("Pollutants Time-Series Chart"), this);
+    QFont titleFont("Arial", 24, QFont::Bold);
+    titleLabel->setFont(titleFont);
+    titleLabel->setStyleSheet("color: #f55ff3;");
+    titleLabel->setAlignment(Qt::AlignCenter);
+    mainLayout->addWidget(titleLabel);
 
-    // List of pollutants for auto-suggestions
-    QStringList pollutantSuggestions = fetchPollutantSuggestions();
-    QCompleter *completer = new QCompleter(pollutantSuggestions, this);
-    searchBar->setCompleter(completer);
+    // Location Dropdown
+    locationFilter = new QComboBox(this);
+    locationFilter->setFixedWidth(200);
+    locationFilter->setFixedHeight(30);
+    locationFilter->setStyleSheet(R"(
+        QComboBox {
+            background-color: #4A5A76;
+            color: white;
+            border: none;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        QComboBox:hover {
+            background-color: #3D485E;
+        }
+        QComboBox QAbstractItemView {
+            background-color: #2F3A4F;
+            color: white;
+            selection-background-color: #4A5A76;
+            selection-color: white;
+            border: none;
+            outline: none;
+            padding: 5px;
+        }
+        QComboBox QAbstractItemView::item {
+            min-height: 25px;
+        }
+        QComboBox QAbstractItemView::item:hover {
+            background-color: #4A5A76;
+        }
+    )");
+    mainLayout->addWidget(locationFilter, 0, Qt::AlignLeft);
 
-    // Filters
-    QHBoxLayout *filtersLayout = new QHBoxLayout();
-    QLabel *filterLabel = new QLabel("Filter by:", this);
-    filtersLayout->addWidget(filterLabel);
+    // Pollutant Dropdown
+    pollutantSearchBar = new QComboBox(this);
+    pollutantSearchBar->setFixedWidth(200);
+    pollutantSearchBar->setEditable(true);
+    pollutantSearchBar->setPlaceholderText("Search for pollutants...");
+    pollutantSearchBar->setStyleSheet(R"(
+        QComboBox {
+            background-color: #4A5A76;
+            color: white;
+            border: none;
+            padding: 5px;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        QComboBox:hover {
+            background-color: #3D485E;
+        }
+        QComboBox QAbstractItemView {
+            background-color: #2F3A4F;
+            color: white;
+            selection-background-color: #4A5A76;
+            selection-color: white;
+            border: none;
+            outline: none;
+            padding: 5px;
+        }
+        QComboBox QAbstractItemView::item {
+            min-height: 25px;
+        }
+        QComboBox QAbstractItemView::item:hover {
+            background-color: #4A5A76;
+        }
+    )");
+    mainLayout->addWidget(pollutantSearchBar, 0, Qt::AlignLeft);
 
-    QComboBox *timeRangeFilter = new QComboBox(this);
-    timeRangeFilter->addItem("Last Month");
-    timeRangeFilter->addItem("Last Year");
-    filtersLayout->addWidget(timeRangeFilter);
-
-    QComboBox *regionFilter = new QComboBox(this);
-    regionFilter->addItem("All Regions");
-    regionFilter->addItem("Region 1");
-    regionFilter->addItem("Region 2");
-    filtersLayout->addWidget(regionFilter);
-
-    QString region = regionFilter->currentText();
-    QString timeRange = timeRangeFilter->currentText();
-    QStringList newSuggestions = fetchPollutantSuggestionsBasedOnFilters(region, timeRange);
-    completer->setModel(new QStringListModel(newSuggestions, completer));
-
-    mainLayout->addLayout(filtersLayout);
-
-    // Visualization Section
-    QHBoxLayout *visualizationLayout = new QHBoxLayout();
-
-    // Time-Series Chart for Pollutant Levels
-    QChartView *timeSeriesChart = new QChartView(this);
-    QChart *chart = new QChart();
-    chart->setTitle("Time-Series of Pollutant Levels");
+    // Create chart
+    chart = new QChart();
+    chart->setTitle("Pollutant Concentrations Over Time");
     chart->setAnimationOptions(QChart::AllAnimations);
-    chart->legend()->setVisible(true);
-    chart->legend()->setAlignment(Qt::AlignBottom);
+    chart->setBackgroundBrush(QColor("#2F3A4F"));
+    chart->setTitleBrush(QBrush(Qt::white));
+    chart->legend()->setLabelBrush(QBrush(Qt::white));
 
-    // Create a dynamic series and connect it to your data update method
-    QLineSeries *series = new QLineSeries();
-    series->setName("Pollutant Levels");
-    chart->addSeries(series);
+    // Create axes
+    QValueAxis *axisX = new QValueAxis;
+    QValueAxis *axisY = new QValueAxis;
 
-    // Set up axes with custom labels and ranges
-    QValueAxis *axisX = new QValueAxis();
-    axisX->setTitleText("Time");
-    axisX->setTickCount(10);
-    axisX->setLabelFormat("%d");
+    axisX->setTitleText(tr("Month"));
+    axisX->setRange(1, 12);
+    axisX->setLabelsColor(Qt::white);
+    axisX->setTitleBrush(QBrush(Qt::white));
+    axisX->setGridLineColor(QColor("#4A5A76"));
     chart->addAxis(axisX, Qt::AlignBottom);
-    series->attachAxis(axisX);
 
-    QValueAxis *axisY = new QValueAxis();
-    axisY->setTitleText("Pollutant Level (ug/L)");
-    axisY->setLabelFormat("%.3f");
+    axisY->setTitleText(tr("Concentration"));
+    axisY->setLabelsColor(Qt::white);
+    axisY->setTitleBrush(QBrush(Qt::white));
+    axisY->setGridLineColor(QColor("#4A5A76"));
     chart->addAxis(axisY, Qt::AlignLeft);
 
-    // Enable panning and zooming for interactivity
-    timeSeriesChart->setChart(chart);
-    timeSeriesChart->setRenderHint(QPainter::Antialiasing);
-    chart->setAcceptHoverEvents(true);
-    visualizationLayout->addWidget(timeSeriesChart);
+    // Chart view
+    chartView = new QChartView(chart);
+    chartView->setRenderHint(QPainter::Antialiasing);
+    chartView->setMinimumHeight(500);
+    chartView->setBackgroundBrush(QColor("#2F3A4F"));
+    mainLayout->addWidget(chartView, 1);
 
-    // Connect the tooltips and click event handlers
-    setupSeriesTooltips(series); // For hover tooltips
-    setupClickEvent(series);     // For click pop-up dialog
-
-    mainLayout->addLayout(visualizationLayout);
-
-    // Signal-Slot Connections for Filters
-    connect(timeRangeFilter, &QComboBox::currentTextChanged, this, [this, series, timeRangeFilter, regionFilter]()
-            { this->updateTimeSeriesData(series, timeRangeFilter->currentText(), regionFilter->currentText()); });
-
-    connect(regionFilter, &QComboBox::currentTextChanged, this, [this, series, timeRangeFilter, regionFilter]()
-            { this->updateTimeSeriesData(series, timeRangeFilter->currentText(), regionFilter->currentText()); });
-
-    // Compliance Overview Section
-    QVBoxLayout *complianceOverviewSection = new QVBoxLayout();
-
-    // Title for Compliance Overview
-    QLabel *complianceTitle = new QLabel("Compliance Overview", this);
-    complianceTitle->setStyleSheet("font-size: 20px; font-weight: bold; margin-bottom: 10px; color: #333;");
-    complianceTitle->setAlignment(Qt::AlignCenter);
-    complianceOverviewSection->addWidget(complianceTitle);
-
-    // Compliance Cards Layout
-    QHBoxLayout *complianceOverviewLayout = new QHBoxLayout();
-    QStringList complianceColors = {"green", "#FFC107", "red"};
-    QList<QPair<QString, QString>> complianceData = {
-        {"Area A", "Safe Levels"},
-        {"Area B", "Caution"},
-        {"Area C", "Exceeds Safe Levels"}};
-
-    for (int i = 0; i < complianceData.size(); ++i)
-    {
-        QFrame *card = new QFrame(this);
-        card->setFrameShape(QFrame::StyledPanel);
-        card->setStyleSheet("border: 1px solid gray; border-radius: 5px; padding: 10px; background-color: #f9f9f9;");
-
-        QVBoxLayout *cardLayout = new QVBoxLayout(card);
-
-        // Compliance Indicator
-        QLabel *indicator = new QLabel(this);
-        indicator->setFixedSize(20, 20);
-        indicator->setStyleSheet(QString("border-radius: 10px; background-color: %1;").arg(complianceColors[i]));
-
-        // Compliance Title
-        QLabel *regionLabel = new QLabel(complianceData[i].first, this);
-        regionLabel->setStyleSheet("font-size: 18px; font-weight: bold; color: #333;");
-
-        // Compliance Summary
-        QLabel *complianceLabel = new QLabel(complianceData[i].second, this);
-        complianceLabel->setStyleSheet("font-size: 14px; color: #555;");
-
-        // Layout the card
-        cardLayout->addWidget(indicator, 0, Qt::AlignCenter);
-        cardLayout->addWidget(regionLabel, 0, Qt::AlignCenter);
-        cardLayout->addWidget(complianceLabel, 0, Qt::AlignCenter);
-        complianceOverviewLayout->addWidget(card);
-    }
-
-    // Add the cards layout to the compliance overview section
-    complianceOverviewSection->addLayout(complianceOverviewLayout);
-
-    // Add the compliance overview section to the main layout
-    mainLayout->addLayout(complianceOverviewSection);
+    // Connect signals
+    connect(locationFilter, &QComboBox::currentTextChanged, this, &PollutantOverview::loadChartData);
+    connect(pollutantSearchBar, &QComboBox::currentTextChanged, this, &PollutantOverview::loadChartData);
 }
 
-QStringList PollutantOverview::fetchPollutantSuggestions()
+void PollutantOverview::loadInitialData()
 {
-    QStringList suggestions;
-    QFile file("Y-2024.csv");
+    QFile file("../src/data/.csv");
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QMessageBox::critical(this, "Error", "Could not open file");
+        return;
+    }
 
     QTextStream in(&file);
-    bool isFirstLine = true;
+    QString headerLine = in.readLine(); // Skip header
+
+    QSet<QString> uniqueLocations;
+    QSet<QString> uniquePollutants;
 
     while (!in.atEnd())
     {
         QString line = in.readLine();
-        if (isFirstLine)
-        {
-            isFirstLine = false; // Skip header
-            continue;
-        }
+        QStringList fields = line.split(",");
 
-        QStringList fields = line.split('\t');
-        if (fields.size() > 5)
+        if (fields.size() >= 4)
         {
-            QString pollutantName = fields[5];
-            if (!suggestions.contains(pollutantName))
-            {
-                suggestions.append(pollutantName);
-            }
+            uniqueLocations.insert(fields[0].trimmed());
+            uniquePollutants.insert(fields[2].trimmed());
         }
     }
+
+    // Populate dropdowns
+    locationFilter->clear();
+    locationFilter->addItem(tr("Select Location"));
+    QStringList sortedLocations = uniqueLocations.values();
+    std::sort(sortedLocations.begin(), sortedLocations.end());
+    locationFilter->addItems(sortedLocations);
+
+    pollutantSearchBar->clear();
+    pollutantSearchBar->addItem(tr("Select Pollutant"));
+    QStringList sortedPollutants = uniquePollutants.values();
+    std::sort(sortedPollutants.begin(), sortedPollutants.end());
+    pollutantSearchBar->addItems(sortedPollutants);
 
     file.close();
-    return suggestions;
 }
 
-QStringList PollutantOverview::fetchPollutantSuggestionsBasedOnFilters(const QString &region, const QString &timeRange)
+void PollutantOverview::loadChartData()
 {
-    QStringList suggestions;
-    QFile file("data/Y-2024.csv");
+    QString selectedLocation = locationFilter->currentText();
+    QString selectedPollutant = pollutantSearchBar->currentText();
+
+    // Skip if no valid selection
+    if (selectedLocation == tr("Select Location") ||
+        selectedPollutant == tr("Select Pollutant"))
+    {
+        return;
+    }
+
+    QFile file("../src/data/.csv");
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QMessageBox::critical(this, "Error", "Could not open file");
+        return;
+    }
 
     QTextStream in(&file);
-    bool isFirstLine = true;
+    QString headerLine = in.readLine(); // Skip header
+
+    // Create new series
+    QLineSeries *series = new QLineSeries();
+    series->setName(selectedPollutant);
+    series->setPen(QPen(QColor("#f55ff3"), 2));
+
+    QVector<QPair<int, double>> dataPoints;
+    double maxY = 0;
+
+    // Debug output
+    qDebug() << "Loading data for:" << selectedLocation << selectedPollutant;
 
     while (!in.atEnd())
     {
         QString line = in.readLine();
-        if (isFirstLine)
-        {
-            isFirstLine = false; // Skip header
-            continue;
-        }
+        QStringList fields = line.split(",");
 
-        QStringList fields = line.split('\t');
-        if (fields.size() > 5)
+        if (fields.size() >= 4)
         {
-            QString pollutantName = fields[5];
-            QString pollutantRegion = fields[3];
-            QString pollutantDateTime = fields[4];
+            QString location = fields[0].trimmed();
+            QString pollutant = fields[2].trimmed();
 
-            // Parse and compare dates for filtering (timeRange)
-            if ((region == "All Regions" || pollutantRegion == region) &&
-                (timeRange == "All Time" || isWithinTimeRange(pollutantDateTime, timeRange)))
+            if (location == selectedLocation && pollutant == selectedPollutant)
             {
-                if (!suggestions.contains(pollutantName))
+                bool ok1, ok2;
+                int month = fields[1].trimmed().toInt(&ok1);
+                double concentration = fields[3].trimmed().toDouble(&ok2);
+
+                if (ok1 && ok2)
                 {
-                    suggestions.append(pollutantName);
+                    dataPoints.append(qMakePair(month, concentration));
+                    maxY = qMax(maxY, concentration);
+                    qDebug() << "Added point:" << month << concentration;
                 }
             }
         }
     }
 
-    file.close();
-    return suggestions;
-}
-
-bool PollutantOverview::isWithinTimeRange(const QString &dateTimeStr, const QString &timeRange)
-{
-    QDateTime dateTime = QDateTime::fromString(dateTimeStr, Qt::ISODate);
-
-    if (timeRange == "Last Month")
+    // Sort by month and add to series
+    std::sort(dataPoints.begin(), dataPoints.end());
+    for (const auto &point : dataPoints)
     {
-        QDateTime oneMonthAgo = QDateTime::currentDateTime().addMonths(-1);
-        return dateTime >= oneMonthAgo;
-    }
-    else if (timeRange == "Last Year")
-    {
-        QDateTime oneYearAgo = QDateTime::currentDateTime().addYears(-1);
-        return dateTime >= oneYearAgo;
+        series->append(point.first, point.second);
     }
 
-    return true;
-}
+    // Update chart
+    chart->removeAllSeries();
+    chart->addSeries(series);
 
-void PollutantOverview::updateTimeSeriesData(QLineSeries *series, const QString &timeRange, const QString &region)
-{
-    // Clear old data
-    series->clear();
+    // Update axes
+    chart->axes(Qt::Horizontal).first()->setRange(1, 12);
+    chart->axes(Qt::Vertical).first()->setRange(0, maxY * 1.2); // 20% padding
 
-    QFile file("dataY-2024.csv");
+    // Make sure series is attached to both axes
+    series->attachAxis(qobject_cast<QValueAxis *>(chart->axes(Qt::Horizontal).first()));
+    series->attachAxis(qobject_cast<QValueAxis *>(chart->axes(Qt::Vertical).first()));
 
-    QTextStream in(&file);
-    bool isFirstLine = true;
-
-    QVector<QPointF> dataPoints;
-
-    while (!in.atEnd())
-    {
-        QString line = in.readLine();
-        if (isFirstLine)
-        {
-            isFirstLine = false; // Skip header
-            continue;
-        }
-
-        QStringList fields = line.split('\t');
-        if (fields.size() > 9)
-        {
-            QString pollutantRegion = fields[3];
-            QString pollutantDateTime = fields[4];
-            double pollutantLevel = fields[9].toDouble();
-
-            // Apply filters
-            if ((region == "All Regions" || pollutantRegion == region) &&
-                (timeRange == "All Time" || isWithinTimeRange(pollutantDateTime, timeRange)))
-            {
-                QDateTime dateTime = QDateTime::fromString(pollutantDateTime, Qt::ISODate);
-                dataPoints.append(QPointF(dateTime.toMSecsSinceEpoch(), pollutantLevel));
-            }
-        }
-    }
+    // Update chart title
+    chart->setTitle(QString("%1 - %2 (%3 measurements)")
+                        .arg(selectedLocation)
+                        .arg(selectedPollutant)
+                        .arg(dataPoints.size()));
 
     file.close();
 
-    // Add data points to the series
-    for (const QPointF &point : dataPoints)
-    {
-        series->append(point);
-    }
-
-    // Update the chart axes dynamically
-    auto chart = series->chart();
-    if (chart)
-    {
-        // Remove old axes
-        QList<QAbstractAxis *> axes = chart->axes();
-        for (auto axis : axes)
-        {
-            chart->removeAxis(axis);
-            delete axis;
-        }
-
-        // Create new axes
-        auto xAxis = new QValueAxis();
-        auto yAxis = new QValueAxis();
-
-        if (!dataPoints.isEmpty())
-        {
-            xAxis->setRange(dataPoints.first().x(), dataPoints.last().x());
-            double maxY = std::max_element(dataPoints.begin(), dataPoints.end(),
-                                           [](const QPointF &a, const QPointF &b)
-                                           {
-                                               return a.y() < b.y();
-                                           })
-                              ->y();
-            yAxis->setRange(0, maxY * 1.1);
-        }
-
-        chart->addAxis(xAxis, Qt::AlignBottom);
-        chart->addAxis(yAxis, Qt::AlignLeft);
-
-        series->attachAxis(xAxis);
-        series->attachAxis(yAxis);
-    }
+    // Debug output
+    qDebug() << "Total points plotted:" << dataPoints.size();
 }
 
-// Setup tooltips for hovering over series data points
 void PollutantOverview::setupSeriesTooltips(QLineSeries *series)
 {
     connect(series, &QLineSeries::hovered, this, &PollutantOverview::showToolTip);
 }
 
-// Display the tooltip when hovering over a data point
 void PollutantOverview::showToolTip(const QPointF &point)
 {
-    // Example Tooltip Content (you can adjust this as needed):
-    QString toolTipText = QString("Pollutant Level: %1 µg/L\nTime: %2\nRisk: Moderate\nCompliance: Amber\nSafety Threshold: 10 µg/L")
-                              .arg(point.y())
-                              .arg(point.x());
-
-    // Display the tooltip at the current mouse cursor position
+    QString toolTipText = QString("Month: %1\nConcentration: %2")
+                              .arg(point.x())
+                              .arg(point.y(), 0, 'f', 4);
     QToolTip::showText(QCursor::pos(), toolTipText);
 }
 
-// Get compliance status based on pollutant level
-QString PollutantOverview::getComplianceStatus(double pollutantLevel)
-{
-    if (pollutantLevel < 0.5)
-    {
-        return "Compliant";
-    }
-    else if (pollutantLevel < 1.0)
-    {
-        return "Warning";
-    }
-    else
-    {
-        return "Non-Compliant";
-    }
-}
-
-// Get safety threshold based on pollutant level
-QString PollutantOverview::getSafetyThreshold(double pollutantLevel)
-{
-    if (pollutantLevel < 0.5)
-    {
-        return "Safe";
-    }
-    else if (pollutantLevel < 1.0)
-    {
-        return "Caution";
-    }
-    else
-    {
-        return "Dangerous";
-    }
-}
-
-// Setup click event to show detailed pop-up
 void PollutantOverview::setupClickEvent(QLineSeries *series)
 {
-    connect(series, &QXYSeries::clicked, this, &PollutantOverview::showToolTip);
+    connect(series, &QXYSeries::clicked, this, &PollutantOverview::onPointClicked);
 }
 
-// Show a pop-up dialog with detailed information when a data point is clicked
 void PollutantOverview::onPointClicked(QPointF point)
 {
-    QString details = QString("Pollutant Level: %1\nCompliance Status: %2\nSafety Threshold: %3")
-                          .arg(point.y())
-                          .arg(getComplianceStatus(point.y())) // Get compliance based on pollutant level
-                          .arg(getSafetyThreshold(point.y())); // Get safety threshold
-
-    // Display the details in a message box
-    QMessageBox::information(this, "Pollutant Data", details);
+    QString details = QString("Month: %1\nConcentration: %2")
+                          .arg(point.x())
+                          .arg(point.y(), 0, 'f', 4);
+    QMessageBox::information(this, "Measurement Details", details);
 }
