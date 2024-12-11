@@ -60,9 +60,10 @@ void Compound::setupUI()
 
     // Add explanatory label for compliance indicators
     QLabel *explanationLabel = new QLabel("Compliance Indicators use traffic-light colours to show safety levels:\n"
-                                        "  -Green if < 0.08 µg/L\n"
-                                        "  -Yellow if > 0.08 µg/L and < 0.1 µg/L\n"
-                                        "  -Red if > 0.1 µg/L", this);
+                                          "  -Green if < 0.08 µg/L\n"
+                                          "  -Yellow if > 0.08 µg/L and < 0.1 µg/L\n"
+                                          "  -Red if > 0.1 µg/L",
+                                          this);
     explanationLabel->setStyleSheet("color: white; font-size: 14px; font-weight: bold;");
     mainLayout->addWidget(explanationLabel);
 
@@ -80,7 +81,8 @@ void Compound::setupUI()
     compoundBoxes.append(pfbsBox);
 
     // Set styles for each compound box
-    for (QLabel *box : compoundBoxes) {
+    for (QLabel *box : compoundBoxes)
+    {
         box->setFixedSize(100, 100);
         box->setAlignment(Qt::AlignCenter);
         box->setStyleSheet("background-color: green; color: white; font-size: 16px; border-radius: 15px;");
