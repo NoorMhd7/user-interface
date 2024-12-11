@@ -100,7 +100,7 @@ void Compound::loadChartData()
     try
     {
         // Update model data from CSV file
-        model.updateFromFile(Config::CSV_FILE);
+        model.updateFromFile(Config::UNIVERSAL_FILE_PATH);
     }
     catch (const std::exception &error)
     {
@@ -187,6 +187,20 @@ void Compound::loadChartData()
         compoundValues[compound] = maxConcentration;
         seriesList.append(series);
         chart->addSeries(series);
+    }
+
+    // Update compound box visibility
+    for (QLabel *box : compoundBoxes)
+    {
+        QString compoundName = box->text();
+        if (selectedCompound == "All Compounds" || compoundName == selectedCompound)
+        {
+            box->setVisible(true); // Show the box
+        }
+        else
+        {
+            box->setVisible(false); // Hide the box
+        }
     }
 
     // Update compound box colors based on concentration values
