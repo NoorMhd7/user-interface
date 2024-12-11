@@ -41,22 +41,21 @@ Pop::Pop(QWidget *parent)
         QComboBox:hover {
             background-color: #3D485E;
         }
-        QComboBox::drop-down {
-            border: none;
-        }
-        QComboBox::down-arrow {
-            width: 12px;
-            height: 12px;
-            margin-right: 5px;
-            image: none;
-            border-left: 3px solid #f55ff3;
-            border-bottom: 3px solid #f55ff3;
-            transform: rotate(-45deg);
-        }
-
         QComboBox QAbstractItemView {
             background-color: #2F3A4F;
-    }
+            color: white;
+            selection-background-color: #4A5A76;
+            selection-color: white;
+            border: none;
+            outline: none;
+            padding: 5px;
+        }
+        QComboBox QAbstractItemView::item {
+            min-height: 25px;
+        }
+        QComboBox QAbstractItemView::item:hover {
+            background-color: #4A5A76;
+        }
     )");
 
     mainLayout->addWidget(locationDropdown, 0, Qt::AlignLeft);
@@ -103,10 +102,8 @@ Pop::Pop(QWidget *parent)
     chartView->setBackgroundBrush(QColor("#2F3A4F"));
     mainLayout->addWidget(chartView, 1);
 
-    // Create a gradient for the plot area (grid only)
-    QLinearGradient plotAreaGradient;
-    plotAreaGradient.setStart(QPointF(0, 0));
-    plotAreaGradient.setFinalStop(QPointF(0, 1));
+    // Setup analysis section
+    setupAnalysisSection();
 
     chart->setPlotAreaBackgroundVisible(false);
     addColorRanges();
@@ -121,10 +118,119 @@ Pop::Pop(QWidget *parent)
 
     setupCustomTooltips();
 
+    // Connect signal before loading data
     connect(locationDropdown, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &Pop::onLocationChanged);
-    // Load data and connect signals
+
+    // Load data
     loadDataFromFile();
+}
+
+void Pop::setupAnalysisSection()
+{
+    // Create container without styling
+    analysisContainer = new QFrame(this);
+
+    // Create layout for analysis
+    analysisLayout = new QVBoxLayout(analysisContainer);
+    analysisLayout->setContentsMargins(0, 15, 0, 0); // Just top margin
+    analysisLayout->setSpacing(15);
+
+    // Create label for analysis
+    safetyAnalysisLabel = new QLabel(this);
+    safetyAnalysisLabel->setWordWrap(true);
+    safetyAnalysisLabel->setStyleSheet("QLabel { color: white; font-size: 14px; line-height: 1.6; }");
+    analysisLayout->addWidget(safetyAnalysisLabel);
+
+    mainLayout->addWidget(analysisContainer);
+    analysisContainer->hide();
+}
+
+void Pop::calculateAndDisplaySafetyLevels(const QVector<QPair<double, int>> &averagedCoords)
+{
+    int totalPoints = averagedCoords.size();
+    if (totalPoints == 0)
+        return;
+
+    int safeCount = 0;
+    int warningCount = 0;
+    int dangerCount = 0;
+
+    for (const auto &coord : averagedCoords)
+    {
+        double value = coord.first;
+        if (value >= 0.00001 && value < 0.001)
+        {
+            safeCount++;
+        }
+        else if (value >= 0.001 && value < 0.005)
+        {
+            warningCount++;
+        }
+        else if (value >= 0.005)
+        {
+            dangerCount++;
+        }
+    }
+
+    double safePercent = (safeCount * 100.0) / totalPoints;
+    double warningPercent = (warningCount * 100.0) / totalPoints;
+    double dangerPercent = (dangerCount * 100.0) / totalPoints;
+
+    QString analysis = QString(
+                           "<p style='font-size: 18px; color: #f55ff3; margin: 0 0 15px 0; text-align: center;'>"
+                           "<b>📊 Safety Level Analysis</b></p>"
+
+                           "<div style='background-color: rgba(107, 203, 119, 0.1); padding: 10px; border-radius: 6px; margin: 8px 0;'>"
+                           "<span style='color: #6bcb77; font-size: 15px;'>✓ Safe Level (0.00001-0.00099 μg/L): "
+                           "<b>%1%</b></span></div>"
+
+                           "<div style='background-color: rgba(255, 217, 61, 0.1); padding: 10px; border-radius: 6px; margin: 8px 0;'>"
+                           "<span style='color: #ffd93d; font-size: 15px;'>⚠️ Warning Level (0.001-0.00499 μg/L): "
+                           "<b>%2%</b></span></div>"
+
+                           "<div style='background-color: rgba(255, 107, 107, 0.1); padding: 10px; border-radius: 6px; margin: 8px 0;'>"
+                           "<span style='color: #ff6b6b; font-size: 15px;'>🚨 Danger Level (≥0.005 μg/L): "
+                           "<b>%3%</b></span></div>")
+                           .arg(safePercent, 0, 'f', 1)
+                           .arg(warningPercent, 0, 'f', 1)
+                           .arg(dangerPercent, 0, 'f', 1);
+
+    // Enhanced recommendation styling
+    QString recommendation;
+    if (dangerPercent > 0)
+    {
+        recommendation = QString(
+            "<div style='background-color: rgba(255, 107, 107, 0.1); padding: 15px; border-radius: 8px; margin-top: 10px;'>"
+            "<p style='color: #ff6b6b; font-size: 16px; margin: 0;'>"
+            "<b>🚨 High Risk Assessment</b></p>"
+            "<p style='color: #ff6b6b; margin: 10px 0 0 0;'>"
+            "Presence of dangerous pollutant levels detected. Immediate action recommended for water quality improvement.</p>"
+            "</div>");
+    }
+    else if (warningPercent > 0)
+    {
+        recommendation = QString(
+            "<div style='background-color: rgba(255, 217, 61, 0.1); padding: 15px; border-radius: 8px; margin-top: 10px;'>"
+            "<p style='color: #ffd93d; font-size: 16px; margin: 0;'>"
+            "<b>⚠️ Moderate Risk Assessment</b></p>"
+            "<p style='color: #ffd93d; margin: 10px 0 0 0;'>"
+            "Pollutants at warning levels detected. Regular monitoring and preventive measures advised.</p>"
+            "</div>");
+    }
+    else
+    {
+        recommendation = QString(
+            "<div style='background-color: rgba(107, 203, 119, 0.1); padding: 15px; border-radius: 8px; margin-top: 10px;'>"
+            "<p style='color: #6bcb77; font-size: 16px; margin: 0;'>"
+            "<b>✓ Low Risk Assessment</b></p>"
+            "<p style='color: #6bcb77; margin: 10px 0 0 0;'>"
+            "All measurements within safe levels. Continue regular monitoring to maintain water quality.</p>"
+            "</div>");
+    }
+
+    safetyAnalysisLabel->setText(analysis + recommendation);
+    analysisContainer->show();
 }
 
 void Pop::setupCustomTooltips()
@@ -169,7 +275,7 @@ void Pop::loadDataFromFile()
     // Get processed data from Config
     locationData = Config::getProcessedData();
 
-    // Temporarily disconnect the signal to prevent multiple updates
+    // Temporarily block signals
     locationDropdown->blockSignals(true);
 
     // Clear and initialize dropdown
@@ -178,7 +284,7 @@ void Pop::loadDataFromFile()
 
     // Get sorted list of locations
     QStringList locations = locationData.keys();
-    locations.sort(); // Sort alphabetically
+    locations.sort();
 
     // Add all locations to dropdown
     for (const QString &location : locations)
@@ -189,11 +295,10 @@ void Pop::loadDataFromFile()
     // Re-enable signals
     locationDropdown->blockSignals(false);
 
-    // Set the first actual location (index 1) as default if there are locations
+    // Set the first actual location as default if available
     if (locationDropdown->count() > 1)
     {
         locationDropdown->setCurrentIndex(1);
-        // Explicitly call onLocationChanged since we blocked signals
         onLocationChanged(1);
     }
 }
@@ -202,19 +307,21 @@ void Pop::onLocationChanged(int index)
 {
     series->clear();
 
+    // Hide analysis container and clear color ranges if no location selected
     if (index <= 0)
+    {
+        analysisContainer->hide();
+        addColorRanges();
         return;
+    }
 
     QString location = locationDropdown->itemText(index);
     if (locationData.contains(location))
     {
-        // Get coordinates for this location
         const auto &originalCoords = locationData[location];
 
-        // Create a map to store sum and count for each month
-        QMap<int, QPair<double, int>> monthData; // month -> (sum, count)
+        QMap<int, QPair<double, int>> monthData;
 
-        // Calculate sum and count for each month and track min/max months
         int minMonth = 9;
         int maxMonth = 1;
         for (const auto &coord : originalCoords)
@@ -232,17 +339,15 @@ void Pop::onLocationChanged(int index)
             else
             {
                 auto &data = monthData[month];
-                data.first += value; // Add to sum
-                data.second += 1;    // Increment count
+                data.first += value;
+                data.second += 1;
             }
         }
 
-        // Create averaged coordinates
         QVector<QPair<double, int>> averagedCoords;
         double maxY = 0;
         double minY = std::numeric_limits<double>::max();
 
-        // Calculate averages and store in new vector
         for (auto it = monthData.begin(); it != monthData.end(); ++it)
         {
             int month = it.key();
@@ -252,34 +357,28 @@ void Pop::onLocationChanged(int index)
             minY = qMin(minY, average);
         }
 
-        // Sort by month
         std::sort(averagedCoords.begin(), averagedCoords.end(),
                   [](const QPair<double, int> &a, const QPair<double, int> &b)
                   {
                       return a.second < b.second;
                   });
 
-        // Plot the averaged and sorted points
         for (const auto &coord : averagedCoords)
         {
             series->append(coord.second, coord.first);
         }
 
-        // Handle axis ranges
         if (maxY == minY)
         {
-            // If all values are the same, create a range around the value
             double value = maxY;
-            maxY = value * 1.5; // 50% above
-            minY = value * 0.5; // 50% below
+            maxY = value * 1.5;
+            minY = value * 0.5;
             if (minY < 0)
                 minY = 0;
         }
 
-        // Set axis ranges with padding
         axisY->setRange(minY, maxY * 1.2);
 
-        // If all points are in the same month, extend X axis range
         if (minMonth == maxMonth)
         {
             axisX->setRange(qMax(1, minMonth - 1), qMin(12, minMonth + 1));
@@ -288,9 +387,10 @@ void Pop::onLocationChanged(int index)
         {
             axisX->setRange(0, 9);
         }
-        addColorRanges();
 
-        // Update chart title to show the actual coordinate count
+        addColorRanges();
+        calculateAndDisplaySafetyLevels(averagedCoords);
+
         chart->setTitle(QString("Average POP trends over time (%1 measurements)").arg(originalCoords.size()));
     }
 }
@@ -305,12 +405,22 @@ void Pop::addColorRanges()
     }
     colorRanges.clear();
 
+    // If no location selected, set default blue background
+    if (locationDropdown->currentIndex() <= 0)
+    {
+        chart->setPlotAreaBackgroundVisible(true);
+        chart->setPlotAreaBackgroundBrush(QColor("#2F3A4F"));
+        return;
+    }
+
+    // If location is selected, hide default background
+    chart->setPlotAreaBackgroundVisible(false);
+
     // Get current Y-axis range
     double yMin = axisY->min();
     double yMax = axisY->max();
 
-    // Only draw ranges that are within the visible range
-    // Define our threshold values
+    // Define threshold values
     const double greenMin = 0.00001;
     const double greenMax = 0.0009999;
     const double yellowMin = 0.001;
