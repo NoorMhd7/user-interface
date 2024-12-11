@@ -33,7 +33,7 @@ void Compound::setupUI()
     locationFilter->addItem("WEST SHAW FARM HAWES 3876");
     locationFilter->addItem("SKELL AT WOOD BRIDGE - RIPON");
     locationFilter->setFixedHeight(30);
-    locationFilter->setStyleSheet("QComboBox::item { padding: 5px; }");
+    locationFilter->setStyleSheet("QComboBox QAbstractItemView::item { padding: 10px; }");
     locationFilter->setItemData(0, QFont("Arial", 10, QFont::Bold), Qt::FontRole);
     filtersLayout->addWidget(locationFilter);
 
@@ -45,7 +45,7 @@ void Compound::setupUI()
     compoundFilter->addItem("HFPO-DA");
     compoundFilter->addItem("PFBS");
     compoundFilter->setFixedHeight(30);
-    compoundFilter->setStyleSheet("QComboBox::item { padding: 5px; }");
+    compoundFilter->setStyleSheet("QComboBox QAbstractItemView::item { padding: 10px; }");
     compoundFilter->setItemData(0, QFont("Arial", 10, QFont::Bold), Qt::FontRole);
     filtersLayout->addWidget(compoundFilter);
 
@@ -60,11 +60,13 @@ void Compound::setupUI()
     mainLayout->addWidget(chartView);
 
     // Add explanatory label for compliance indicators
-    QLabel *explanationLabel = new QLabel("Compliance Indicators use traffic-light colours to show safety levels:\n"
-                                          "  -Green if < 0.08 µg/L\n"
-                                          "  -Yellow if > 0.08 µg/L and < 0.1 µg/L\n"
-                                          "  -Red if > 0.1 µg/L",
-                                          this);
+    QLabel *explanationLabel = new QLabel(
+        "Compliance Indicators use traffic-light colours to show safety levels:\n"
+        "  - Green if < 0.08 µg/L\n"
+        "  - Yellow if > 0.08 µg/L and < 0.1 µg/L\n"
+        "  - Red if > 0.1 µg/L",
+        this);
+
     explanationLabel->setStyleSheet("color: white; font-size: 14px; font-weight: bold;");
     mainLayout->addWidget(explanationLabel);
 
@@ -117,7 +119,7 @@ void Compound::loadChartData()
 
     // Initialize and configure chart
     QChart *chart = new QChart();
-    chart->setTitle("Compound Concentrations Over Time (2024)");
+    chart->setTitle(tr("Compound Concentrations Over Time (2024)"));
     chart->setAnimationOptions(QChart::SeriesAnimations);
     chart->setBackgroundBrush(Qt::NoBrush);
     chartView->setMinimumHeight(500);
