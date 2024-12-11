@@ -480,3 +480,8 @@ void Pop::addColorRanges()
         colorRanges << redRange;
     }
 }
+
+QString Pop::getSafetyAnalysisText() const
+{
+    return safetyAnalysisLabel->text();
+}

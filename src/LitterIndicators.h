@@ -15,6 +15,7 @@ class LitterIndicators : public QWidget
 
 public:
     explicit LitterIndicators(QWidget *parent = nullptr);
+    QString getDescriptionText() const;
 
 private:
     void setupUI();

@@ -74,10 +74,10 @@ double QuakeDataset::sumResult(const QString &litterType, const QString &locatio
   for (const auto &measurement : data)
   {
     // Check if both location, litterType, and materialType match
-    bool matchesLocation = (location == "All Locations") || (measurement.getLocation() == location);
-    bool matchesMaterialType = (materialType == "All Water Body Types") || (measurement.materialType() == materialType);
+    bool matchesLocation = (location == "All Locations") || (measurement.getLocation() == location.toStdString());
+    bool matchesMaterialType = (materialType == "All Water Body Types") || (measurement.materialType() == materialType.toStdString());
 
-    if (measurement.getPollutant() == litterType && matchesLocation && matchesMaterialType &&
+    if (measurement.getPollutant() == litterType.toStdString() && matchesLocation && matchesMaterialType &&
         (measurement.getQualifier() != "<" && measurement.getQualifier() != ">"))
     {
       sum += measurement.getMagnitude();
@@ -98,10 +98,10 @@ double QuakeDataset::sumCompound(const QString &compoundType, const QString &loc
 
   for (const auto &measurement : data)
   {
-    bool matchesLocation = (location == "All Locations") || (measurement.getLocation() == location);
+    bool matchesLocation = (location == "All Locations") || (measurement.getLocation() == location.toStdString());
     bool matchesTime = (time == "All Times") || (QString::fromStdString(measurement.getTime()).startsWith(time));
 
-    if (measurement.getPollutant() == compoundType && matchesLocation && matchesTime &&
+    if (measurement.getPollutant() == compoundType.toStdString() && matchesLocation && matchesTime &&
         (measurement.getQualifier() != "<" || measurement.getQualifier() != ">"))
     {
       sum += measurement.getMagnitude();

@@ -17,6 +17,8 @@ class Compound : public QWidget
 
 public:
     explicit Compound(QWidget *parent = nullptr);
+    QStringList getCompoundBoxTexts() const;
+    QStringList getCompoundBoxColors() const;
 
 private:
     // Method to set up the user interface

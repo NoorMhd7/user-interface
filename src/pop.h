@@ -15,6 +15,7 @@ class Pop : public QWidget
 
 public:
     explicit Pop(QWidget *parent = nullptr);
+    QString getSafetyAnalysisText() const;
 
 private slots:
     void onLocationChanged(int index);

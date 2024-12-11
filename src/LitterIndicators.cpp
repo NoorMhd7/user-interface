@@ -189,3 +189,8 @@ void LitterIndicators::loadChartData()
 
     descriptionLabel->setText(descriptionText);
 }
+
+QString LitterIndicators::getDescriptionText() const
+{
+    return descriptionLabel->text();
+}

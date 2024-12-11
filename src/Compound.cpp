@@ -8,6 +8,7 @@
 #include <QMouseEvent>
 #include <QtDebug>
 #include <iostream>
+#include <QRegularExpression>
 #include "data/config.h"
 
 Compound::Compound(QWidget *parent)
@@ -267,4 +268,29 @@ void Compound::loadChartData()
     }
 
     chartView->setChart(chart); // Set the chart to the view
+}
+
+QStringList Compound::getCompoundBoxTexts() const
+{
+    QStringList texts;
+    for (const QLabel *box : compoundBoxes) {
+        texts.append(box->text());
+    }
+    return texts;
+}
+
+QStringList Compound::getCompoundBoxColors() const
+{
+    QStringList colors;
+    for (const QLabel *box : compoundBoxes) {
+        QString styleSheet = box->styleSheet();
+        QRegularExpression regex("background-color: ([^;]+);");
+        QRegularExpressionMatch match = regex.match(styleSheet);
+        if (match.hasMatch()) {
+        colors.append(match.captured(1));
+        } else {
+            colors.append("transparent");
+        }
+    }
+    return colors;
 }

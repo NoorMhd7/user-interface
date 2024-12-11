@@ -2,7 +2,12 @@
 #define DASHBOARD_H
 
 #include <QWidget>
-#include <QGridLayout> // Include QGridLayout header
+#include <QGridLayout>
+#include <QScrollArea>
+#include <QFrame>
+#include "LitterIndicators.h"
+#include "pop.h"
+#include "Compound.h"
 
 class Dashboard : public QWidget
 {
@@ -18,13 +23,26 @@ signals:
     void navigateToCompound();
     void navigateToData();
 
+protected:
+    void resizeEvent(QResizeEvent *event) override;
+
 private slots:
     void showHelp();
     void showUserGuide();
     void showCredits();
 
 private:
-    void addPollutantCard(QGridLayout *layout, const QString &title, const QString &summary, int row, int col, void (Dashboard::*slot)());
+    void addPollutantCard(const QString &title, const QString &summary, const QString &description, void (Dashboard::*slot)());
+    void adjustCardLayout();
+
+    QScrollArea *scrollArea;
+    QWidget *contentWidget;
+    QGridLayout *contentLayout;
+    QList<QFrame *> cards;
+
+    LitterIndicators *litterIndicatorsPage;
+    Pop *popPage;
+    Compound *compoundPage;
 };
 
 #endif // DASHBOARD_H

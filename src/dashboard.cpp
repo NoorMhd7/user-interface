@@ -1,4 +1,7 @@
 #include "dashboard.h"
+#include "LitterIndicators.h"
+#include "pop.h"
+#include "Compound.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -8,6 +11,8 @@
 #include <QScrollArea>
 #include <QGridLayout>
 #include <QMessageBox>
+#include <QResizeEvent>
+#include <QDebug>
 
 Dashboard::Dashboard(QWidget *parent)
     : QWidget(parent)
@@ -18,90 +23,40 @@ Dashboard::Dashboard(QWidget *parent)
 
     // Header
     QHBoxLayout *headerLayout = new QHBoxLayout();
-    QLabel *appTitle = new QLabel("Water Quality Monitor", this);
+    QLabel *appTitle = new QLabel(tr("Water Quality Monitor"), this);
     appTitle->setStyleSheet("font-size: 24px; font-weight: bold; color: #f55ff3; padding: 10px;");
-    headerLayout->addWidget(appTitle);
+    headerLayout->addStretch();
+    headerLayout->addWidget(appTitle, 0, Qt::AlignCenter);
+    headerLayout->addStretch();
 
-    // Language Selector
-    QComboBox *languageSelector = new QComboBox(this);
-    languageSelector->setFixedWidth(200);
-    languageSelector->addItem("English");
-    languageSelector->addItem("Spanish");
-    languageSelector->setStyleSheet(R"(
-        QComboBox {
-           background-color: #4A5A76;
-           color: #f55ff3;
-           border: none;
-           padding: 5px;
-           border-radius: 4px;
-       }
-       QComboBox:hover {
-           background-color: #3D485E;
-       }
-   )");
-    headerLayout->addWidget(languageSelector, 0, Qt::AlignRight);
     mainLayout->addLayout(headerLayout);
 
-    // Quick Filters
-    QHBoxLayout *filtersLayout = new QHBoxLayout();
-    QLabel *filterLabel = new QLabel("Filter by:", this);
-    filterLabel->setStyleSheet("color: white;");
-    filtersLayout->addWidget(filterLabel);
-
-    QComboBox *timeRangeFilter = new QComboBox(this);
-    timeRangeFilter->setFixedWidth(200);
-    timeRangeFilter->addItem("Last Month");
-    timeRangeFilter->addItem("Last Year");
-    timeRangeFilter->setStyleSheet(R"(
-       QComboBox {
-           background-color: #4A5A76;
-           color: #f55ff3;
-           border: none;
-           padding: 5px;
-           border-radius: 4px;
-       }
-       QComboBox:hover {
-           background-color: #3D485E;
-       }
-   )");
-    filtersLayout->addWidget(timeRangeFilter);
-
-    QComboBox *regionFilter = new QComboBox(this);
-    regionFilter->setFixedWidth(200);
-    regionFilter->addItem("All Regions");
-    regionFilter->addItem("Region 1");
-    regionFilter->addItem("Region 2");
-    regionFilter->setStyleSheet(R"(
-       QComboBox {
-           background-color: #4A5A76;
-           color: #f55ff3;
-           border: none;
-           padding: 5px;
-           border-radius: 4px;
-       }
-       QComboBox:hover {
-           background-color: #3D485E;
-       }
-   )");
-    filtersLayout->addWidget(regionFilter);
-    filtersLayout->addStretch();
-    mainLayout->addLayout(filtersLayout);
-
     // Main Content
-    QScrollArea *scrollArea = new QScrollArea(this);
+    scrollArea = new QScrollArea(this);
     scrollArea->setStyleSheet("QScrollArea { background-color: #2F3A4F; border: none; }");
-    QWidget *contentWidget = new QWidget(this);
+    contentWidget = new QWidget(this);
     contentWidget->setStyleSheet("background-color: #2F3A4F;");
-    QGridLayout *contentLayout = new QGridLayout(contentWidget);
+    contentLayout = new QGridLayout(contentWidget);
     contentLayout->setSpacing(10);
     contentLayout->setContentsMargins(10, 10, 10, 10);
 
+    // Create instances of LitterIndicators, Pop, and Compound to get the description text
+    litterIndicatorsPage = new LitterIndicators();
+    popPage = new Pop();
+    compoundPage = new Compound();
+
+    // Ensure the instances are created successfully
+    if (!litterIndicatorsPage || !popPage || !compoundPage) {
+        QMessageBox::critical(this, tr("Initialization Error"), tr("Failed to create page instances."));
+        return;
+    }
+
     // Add pollutant cards
-    addPollutantCard(contentLayout, "Pollutant Overview", "Average Level: 5.4 µg/L\nCompliance: Green", 0, 0, &Dashboard::navigateToPollutantOverview);
-    addPollutantCard(contentLayout, "POPs", "Average Level: 2.1 µg/L\nCompliance: Yellow", 0, 1, &Dashboard::navigateToPOPs);
-    addPollutantCard(contentLayout, "Litter Indicators", "Average Level: 3.7 µg/L\nCompliance: Red", 1, 0, &Dashboard::navigateToLitterIndicators);
-    addPollutantCard(contentLayout, "Fluorinated Compounds", "Average Level: 1.8 µg/L\nCompliance: Green", 1, 1, &Dashboard::navigateToCompound);
-    addPollutantCard(contentLayout, "Data", "Average Level: 4.2 µg/L\nCompliance: Yellow", 2, 0, &Dashboard::navigateToData);
+    addPollutantCard(tr("Pollutant Overview"), "", "", &Dashboard::navigateToPollutantOverview);
+    addPollutantCard(tr("POPs"), "", popPage->getSafetyAnalysisText(), &Dashboard::navigateToPOPs);
+    addPollutantCard(tr("Litter Indicators"), "", litterIndicatorsPage->getDescriptionText(), &Dashboard::navigateToLitterIndicators);
+    addPollutantCard(tr("Fluorinated Compounds"), tr("Compound Concentrations Over Time for All Locations\n"), tr("Compliance Indicators use traffic-light colours to show safety levels:\n"), &Dashboard::navigateToCompound);
+    addPollutantCard(tr("Data"), tr("Average Level: 643.0995 \nTotal Measurements: 144193 \nBelow Detection Limit: 49929"), "", &Dashboard::navigateToData);
 
     contentWidget->setLayout(contentLayout);
     scrollArea->setWidget(contentWidget);
@@ -112,9 +67,10 @@ Dashboard::Dashboard(QWidget *parent)
     QHBoxLayout *footerLayout = new QHBoxLayout();
     footerLayout->setSpacing(10);
 
-    QStringList footerButtons = {"Help", "User Guide", "Credits"};
+    QStringList footerButtons = {tr("Help"), tr("User Guide"), tr("Credits")};
     for (const QString &buttonText : footerButtons)
     {
+        footerLayout->addStretch();
         QPushButton *button = new QPushButton(buttonText, this);
         button->setStyleSheet(R"(
            QPushButton {
@@ -131,20 +87,22 @@ Dashboard::Dashboard(QWidget *parent)
        )");
         footerLayout->addWidget(button);
 
-        if (buttonText == "Help")
+        if (buttonText == tr("Help"))
             connect(button, &QPushButton::clicked, this, &Dashboard::showHelp);
-        else if (buttonText == "User Guide")
+        else if (buttonText == tr("User Guide"))
             connect(button, &QPushButton::clicked, this, &Dashboard::showUserGuide);
-        else if (buttonText == "Credits")
+        else if (buttonText == tr("Credits"))
             connect(button, &QPushButton::clicked, this, &Dashboard::showCredits);
     }
-
     footerLayout->addStretch();
     mainLayout->addLayout(footerLayout);
     setLayout(mainLayout);
+
+    // Adjust layout based on initial size
+    adjustCardLayout();
 }
 
-void Dashboard::addPollutantCard(QGridLayout *layout, const QString &title, const QString &summary, int row, int col, void (Dashboard::*slot)())
+void Dashboard::addPollutantCard(const QString &title, const QString &summary, const QString &description, void (Dashboard::*slot)())
 {
     QFrame *pollutantCard = new QFrame(this);
     pollutantCard->setFrameShape(QFrame::StyledPanel);
@@ -164,11 +122,33 @@ void Dashboard::addPollutantCard(QGridLayout *layout, const QString &title, cons
     pollutantTitle->setStyleSheet("font-size: 18px; font-weight: bold; color: white;");
     pollutantCardLayout->addWidget(pollutantTitle);
 
-    QLabel *pollutantSummary = new QLabel(summary, this);
-    pollutantSummary->setStyleSheet("color: white;");
-    pollutantCardLayout->addWidget(pollutantSummary);
+    if (!summary.isEmpty()) {
+        QLabel *pollutantSummary = new QLabel(summary, this);
+        pollutantSummary->setStyleSheet("color: white;");
+        pollutantCardLayout->addWidget(pollutantSummary);
+    }
 
-    QPushButton *pollutantDetailsButton = new QPushButton("View Details", this);
+    QString defaultDescription = "";
+    QLabel *pollutantDescription = new QLabel(description.isEmpty() ? defaultDescription : description, this);
+    pollutantDescription->setStyleSheet("color: white;");
+    pollutantCardLayout->addWidget(pollutantDescription);
+
+    // Add compound boxes if the title is "Fluorinated Compounds"
+    if (title == tr("Fluorinated Compounds")) {
+        QHBoxLayout *compoundBoxLayout = new QHBoxLayout();
+        QStringList boxTexts = compoundPage->getCompoundBoxTexts();
+        QStringList boxColors = compoundPage->getCompoundBoxColors();
+        for (int i = 0; i < boxTexts.size(); ++i) {
+            QLabel *box = new QLabel(boxTexts[i], this);
+            box->setFixedSize(100, 100);
+            box->setAlignment(Qt::AlignCenter);
+            box->setStyleSheet(QString("background-color: %1; color: white; font-size: 16px; border-radius: 15px;").arg(boxColors[i]));
+            compoundBoxLayout->addWidget(box);
+        }
+        pollutantCardLayout->addLayout(compoundBoxLayout);
+    }
+
+    QPushButton *pollutantDetailsButton = new QPushButton(tr("View Details"), this);
     pollutantDetailsButton->setStyleSheet(R"(
        QPushButton {
            background-color: #4A5A76;
@@ -184,22 +164,86 @@ void Dashboard::addPollutantCard(QGridLayout *layout, const QString &title, cons
        }
    )");
     pollutantCardLayout->addWidget(pollutantDetailsButton);
-    layout->addWidget(pollutantCard, row, col);
-
     connect(pollutantDetailsButton, &QPushButton::clicked, this, slot);
+
+    cards.append(pollutantCard);
+}
+
+void Dashboard::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event);
+    adjustCardLayout();
+}
+
+void Dashboard::adjustCardLayout()
+{
+    int minCardWidth = 500; // Minimum card width
+    int spacing = 10; // Spacing between cards
+    int availableWidth = scrollArea->viewport()->width() - contentLayout->contentsMargins().left() - contentLayout->contentsMargins().right();
+    int columns = availableWidth / (minCardWidth + spacing);
+
+    if (columns < 1) columns = 1;
+
+    // Calculate the actual card width to fill the available space
+    int cardWidth = (availableWidth - (columns - 1) * spacing) / columns;
+
+    // Clear the current layout
+    QLayoutItem *item;
+    while ((item = contentLayout->takeAt(0)) != nullptr) {
+        if (item->widget()) {
+            item->widget()->setParent(nullptr);
+        }
+        delete item;
+    }
+
+    // Add cards to the layout
+    int row = 0;
+    int col = 0;
+    for (QFrame *card : cards) {
+        if (card) {
+            card->setMinimumWidth(minCardWidth);
+            card->setMaximumWidth(cardWidth);
+            contentLayout->addWidget(card, row, col);
+            col++;
+            if (col >= columns) {
+                col = 0;
+                row++;
+            }
+        }
+    }
+
+    // Add spacers to make the cards scalable and the same size
+    for (int r = 0; r <= row; ++r) {
+        for (int c = 0; c < columns; ++c) {
+            contentLayout->setColumnStretch(c, 1);
+            contentLayout->setRowStretch(r, 1);
+        }
+    }
 }
 
 void Dashboard::showHelp()
 {
-    QMessageBox::information(this, "Help", "This is the help information.");
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(tr("Help"));
+    msgBox.setText(tr("This application helps you monitor water quality and pollutants. Click on View Details to find out more on each page."));
+    msgBox.setStyleSheet("QMessageBox { background-color: #2F3A4F; color: white; } QLabel { color: white; } QPushButton { background-color: #4A5A76; color: white; }");
+    msgBox.exec();
 }
 
 void Dashboard::showUserGuide()
 {
-    QMessageBox::information(this, "User Guide", "This is the user guide information.");
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(tr("User Guide"));
+    msgBox.setText(tr("User Guide:\n\n1. View summarised data for each page on the Dashboard cards.\n2. Click on 'View Details' buttons on each card to navigate to detailed pages.\n3. Use the 'Help' button for assistance and the 'Credits' button to view data sources."));
+    msgBox.setStyleSheet("QMessageBox { background-color: #2F3A4F; color: white; } QLabel { color: white; } QPushButton { background-color: #4A5A76; color: white; }");
+    msgBox.exec();
 }
 
 void Dashboard::showCredits()
 {
-    QMessageBox::information(this, "Credits", "These are the credits for data sources.");
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(tr("Credits"));
+    msgBox.setText(tr("Credits for data sources:\nEnvironment Food & Rural Affairs, D. Download open water quality archive datasets. Available at: https://environment.data.gov.uk/water-quality/view/download (Accessed: 11 December 2024). "));
+    msgBox.setStyleSheet("QMessageBox { background-color: #2F3A4F; color: white; } QLabel { color: white; } QPushButton { background-color: #4A5A76; color: white; }");
+    msgBox.exec();
 }
