@@ -67,6 +67,7 @@ void MainWindow::setupUi()
 
     // Sidebar setup
     sidebar->setFixedWidth(225);
+    sidebar->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     // Add items and set text alignment for each
     QListWidgetItem *dashboardItem = new QListWidgetItem("Dashboard", sidebar);

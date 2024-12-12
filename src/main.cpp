@@ -18,8 +18,15 @@
 #include "data/data_processors.h"
 
 int main(int argc, char *argv[])
-{
+{   
+    QLocale::setDefault(QLocale("en_EN"));  // Set the desired locale here
+    
     QApplication app(argc, argv);
+
+    QTranslator translator;
+    if (translator.load("water-quality-qt_en.qm", ":/i18n")) {
+        app.installTranslator(&translator);
+    }
 
     DataProcessor processor;
     processor.processData();
