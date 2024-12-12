@@ -8,6 +8,7 @@
 #include "LitterIndicators.h"
 #include "pop.h"
 #include "Compound.h"
+#include "PollutantOverview.h"
 
 class Dashboard : public QWidget
 {
@@ -44,6 +45,7 @@ private:
     LitterIndicators *litterIndicatorsPage;
     Pop *popPage;
     Compound *compoundPage;
+    PollutantOverview *pollutantOverviewPage = nullptr;
 };
 
 #endif // DASHBOARD_H

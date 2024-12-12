@@ -41,18 +41,23 @@ Dashboard::Dashboard(QWidget *parent)
     contentLayout->setContentsMargins(10, 10, 10, 10);
 
     // Create instances of LitterIndicators, Pop, and Compound to get the description text
+    pollutantOverviewPage = new PollutantOverview();
     litterIndicatorsPage = new LitterIndicators();
     popPage = new Pop();
     compoundPage = new Compound();
 
     // Ensure the instances are created successfully
-    if (!litterIndicatorsPage || !popPage || !compoundPage) {
+    if (!litterIndicatorsPage || !popPage || !compoundPage)
+    {
         QMessageBox::critical(this, tr("Initialization Error"), tr("Failed to create page instances."));
         return;
     }
 
     // Add pollutant cards
-    addPollutantCard(tr("Pollutant Overview"), tr("Concentration Level of 525 Pollutants"), "", &Dashboard::navigateToPollutantOverview);
+    addPollutantCard(tr("Pollutant Overview"),
+                     pollutantOverviewPage->getConcentrationText(), // Use the concentration text here
+                     "",
+                     &Dashboard::navigateToPollutantOverview);
     addPollutantCard(tr("POPs"), "", popPage->getSafetyAnalysisText(), &Dashboard::navigateToPOPs);
     addPollutantCard(tr("Litter Indicators"), "", litterIndicatorsPage->getDescriptionText(), &Dashboard::navigateToLitterIndicators);
     addPollutantCard(tr("Fluorinated Compounds"), tr("Compound Concentrations Over Time for All Locations\n"), tr("Compliance Indicators use traffic-light colours to show safety levels:\n"), &Dashboard::navigateToCompound);
@@ -122,7 +127,8 @@ void Dashboard::addPollutantCard(const QString &title, const QString &summary, c
     pollutantTitle->setStyleSheet("font-size: 18px; font-weight: bold; color: white;");
     pollutantCardLayout->addWidget(pollutantTitle);
 
-    if (!summary.isEmpty()) {
+    if (!summary.isEmpty())
+    {
         QLabel *pollutantSummary = new QLabel(summary, this);
         pollutantSummary->setStyleSheet("color: white;");
         pollutantCardLayout->addWidget(pollutantSummary);
@@ -134,11 +140,13 @@ void Dashboard::addPollutantCard(const QString &title, const QString &summary, c
     pollutantCardLayout->addWidget(pollutantDescription);
 
     // Add compound boxes if the title is "Fluorinated Compounds"
-    if (title == tr("Fluorinated Compounds")) {
+    if (title == tr("Fluorinated Compounds"))
+    {
         QHBoxLayout *compoundBoxLayout = new QHBoxLayout();
         QStringList boxTexts = compoundPage->getCompoundBoxTexts();
         QStringList boxColors = compoundPage->getCompoundBoxColors();
-        for (int i = 0; i < boxTexts.size(); ++i) {
+        for (int i = 0; i < boxTexts.size(); ++i)
+        {
             QLabel *box = new QLabel(boxTexts[i], this);
             box->setFixedSize(100, 100);
             box->setAlignment(Qt::AlignCenter);
@@ -177,20 +185,22 @@ void Dashboard::resizeEvent(QResizeEvent *event)
 
 void Dashboard::adjustCardLayout()
 {
-    if (cards.isEmpty()) return;
+    if (cards.isEmpty())
+        return;
 
     int minCardWidth = 500;
     int spacing = 10;
-    int availableWidth = scrollArea->viewport()->width() - 
-                        contentLayout->contentsMargins().left() - 
-                        contentLayout->contentsMargins().right();
-    
+    int availableWidth = scrollArea->viewport()->width() -
+                         contentLayout->contentsMargins().left() -
+                         contentLayout->contentsMargins().right();
+
     // Calculate number of columns (minimum 1)
     int columns = std::max(1, availableWidth / (minCardWidth + spacing));
-    
+
     // Only reorganize if number of columns has changed
     static int previousColumns = 0;
-    if (previousColumns == columns && !contentLayout->isEmpty()) {
+    if (previousColumns == columns && !contentLayout->isEmpty())
+    {
         return;
     }
     previousColumns = columns;
@@ -202,34 +212,41 @@ void Dashboard::adjustCardLayout()
     contentWidget->setVisible(false);
 
     // Remove items from layout but don't delete widgets
-    while (contentLayout->count()) {
-        QLayoutItem* item = contentLayout->takeAt(0);
-        if (item->widget()) {
+    while (contentLayout->count())
+    {
+        QLayoutItem *item = contentLayout->takeAt(0);
+        if (item->widget())
+        {
             item->widget()->hide();
         }
         delete item;
     }
 
     // Reset layout stretches
-    for (int i = 0; i < contentLayout->columnCount(); ++i) {
+    for (int i = 0; i < contentLayout->columnCount(); ++i)
+    {
         contentLayout->setColumnStretch(i, 0);
     }
-    for (int i = 0; i < contentLayout->rowCount(); ++i) {
+    for (int i = 0; i < contentLayout->rowCount(); ++i)
+    {
         contentLayout->setRowStretch(i, 0);
     }
 
     // Add cards back to layout
     int row = 0;
     int col = 0;
-    for (QFrame* card : cards) {
-        if (card) {
+    for (QFrame *card : cards)
+    {
+        if (card)
+        {
             card->setMinimumWidth(minCardWidth);
             card->setMaximumWidth(cardWidth);
             contentLayout->addWidget(card, row, col);
             card->show();
-            
+
             col++;
-            if (col >= columns) {
+            if (col >= columns)
+            {
                 col = 0;
                 row++;
             }
@@ -237,10 +254,12 @@ void Dashboard::adjustCardLayout()
     }
 
     // Set equal stretch for columns and rows
-    for (int c = 0; c < columns; ++c) {
+    for (int c = 0; c < columns; ++c)
+    {
         contentLayout->setColumnStretch(c, 1);
     }
-    for (int r = 0; r <= row; ++r) {
+    for (int r = 0; r <= row; ++r)
+    {
         contentLayout->setRowStretch(r, 1);
     }
 

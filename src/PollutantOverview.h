@@ -19,16 +19,25 @@ public:
     explicit PollutantOverview(QWidget *parent = nullptr);
     QStringList getCompoundBoxTexts() const;
     QStringList getCompoundBoxColors() const;
+    QString getConcentrationText() const
+    {
+        if (findChild<QLabel *>("complianceIndicator"))
+        {
+            return findChild<QLabel *>("complianceIndicator")->text();
+        }
+        return "";
+    }
 
 private:
     // Method to set up the user interface
-    void setupUI(); 
+    void setupUI();
+    double currentConcentration = 0.0;
 
     // Method to load chart data
-    void loadChartData(); 
+    void loadChartData();
 
     // Data model instance
-    QuakeModel model; 
+    QuakeModel model;
 
     // Main layout for arranging widgets
     QVBoxLayout *mainLayout;
@@ -50,9 +59,9 @@ private:
 
     // QLabel instances for displaying compound names
     QLabel *litterName;
-    
+
     // List to store the compound boxes for display
-    QList<QLabel*> litterBoxes;
+    QList<QLabel *> litterBoxes;
 };
 
 #endif // POLLUTANT_OVERVIEW_H

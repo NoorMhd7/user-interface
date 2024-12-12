@@ -9,6 +9,16 @@ A Qt-based desktop application for visualizing UK/EU water quality data with emp
 - Accessibility features
 - Internationalization support
 
+## Back end Integration
+We took full use of the starter code and made our model around it. The model is used to display the table and helps filter data for our pages. Moreover, we went with a universal approach where we made a `src/data/config.cpp` file where we have initialized the path to our CSV data, and it is used by all our pages. This ensures that if you were to test our application with a different dataset but the same format, you can just place the CSV in the `src/data` directory and change the path `"../src/data/Y-2024.csv"` to the `Config::UNIVERSAL_FILE_PATH`.
+
+## Locale Usage
+We have implemented 4 languages: English, Spanish, German, and French. Switching between them is simple. Go to `src/main.cpp` and edit the `"en_EN"` in this line:
+```cpp
+QLocale::setDefault(QLocale("en_EN"));
+```
+Then, change the file name `"water-quality-qt_en.qm"` to the file specified for each language.
+
 ## Prerequisites
 - Qt 6.x
 - CMake 3.16+
@@ -16,23 +26,17 @@ A Qt-based desktop application for visualizing UK/EU water quality data with emp
 
 ## Project Structure
 - `src/`: Source files (where the coding takes place)
-- `cwk_3/`: All the coursework reuirements
-- `src/data/`: Our csv data file is here
-
+- `src/data/`: Our CSV data file is here
 
 ## Building the Project
-1. Clone the repository
-   ```bash
-   git clone https://github.com/your-username/water-quality-qt.git
-   ```
 
-2. Create build directory
+1. Create build directory
    ```bash
    mkdir build
    cd build
    ```
 
-3. Configure and build
+2. Configure and build
    ```bash
    cmake ..
    make
@@ -40,7 +44,7 @@ A Qt-based desktop application for visualizing UK/EU water quality data with emp
    ```
 
 ## Team Members
-[Add team members here]
-
-## License
-This project is licensed under the MIT License - see the LICENSE file for details.
+Muhammad Arif Noor, ID: 201692115
+Samantha Ramirez, ID: 201725731
+Josephine Bunce,
+Shayan Hosseini,

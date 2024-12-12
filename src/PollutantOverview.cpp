@@ -51,14 +51,13 @@ void PollutantOverview::setupUI()
     complianceIndicator->setObjectName("complianceIndicator");
     complianceIndicator->setFixedHeight(150); // Larger height
     complianceIndicator->setAlignment(Qt::AlignCenter);
-    
+
     // Set up tooltip with detailed explanation
     complianceIndicator->setToolTip(
         "Compliance Indicators use traffic-light colours to show safety levels:\n"
         "  - Green indicates concentration < 0.08 µg/L (Safe)\n"
         "  - Yellow indicates concentration between 0.08 and 0.1 µg/L (Caution)\n"
-        "  - Red indicates concentration > 0.1 µg/L (Unsafe)"
-    );
+        "  - Red indicates concentration > 0.1 µg/L (Unsafe)");
 
     // Enable tooltips
     complianceIndicator->setMouseTracking(true);
@@ -69,8 +68,7 @@ void PollutantOverview::setupUI()
         "color: white; "
         "font-size: 24px; " // Larger font
         "border-radius: 15px; "
-        "padding: 20px;"
-    );
+        "padding: 20px;");
 
     mainLayout->addWidget(complianceIndicator);
     setLayout(mainLayout);
@@ -98,7 +96,7 @@ void PollutantOverview::loadChartData()
 
     // Initialize and configure chart
     QChart *chart = new QChart();
-    chart->setTitle(tr("Compound Concentrations Over Time (2024)"));
+    chart->setTitle(tr("Concentrations Over Time (2024)"));
     chart->setAnimationOptions(QChart::SeriesAnimations);
     chart->setBackgroundBrush(Qt::NoBrush);
     chartView->setMinimumHeight(500);
@@ -153,7 +151,7 @@ void PollutantOverview::loadChartData()
     chart->addSeries(series);
 
     // Find the compliance indicator label
-    QLabel *complianceIndicator = findChild<QLabel*>("complianceIndicator");
+    QLabel *complianceIndicator = findChild<QLabel *>("complianceIndicator");
     if (complianceIndicator)
     {
         // Update compliance indicator color based on max concentration
@@ -164,8 +162,7 @@ void PollutantOverview::loadChartData()
                 "color: white; "
                 "font-size: 24px; "
                 "border-radius: 15px; "
-                "padding: 20px;"
-            );
+                "padding: 20px;");
         }
         else if (maxConcentration > 0.08)
         {
@@ -174,8 +171,7 @@ void PollutantOverview::loadChartData()
                 "color: black; "
                 "font-size: 24px; "
                 "border-radius: 15px; "
-                "padding: 20px;"
-            );
+                "padding: 20px;");
         }
         else
         {
@@ -184,12 +180,18 @@ void PollutantOverview::loadChartData()
                 "color: white; "
                 "font-size: 24px; "
                 "border-radius: 15px; "
-                "padding: 20px;"
-            );
+                "padding: 20px;");
         }
-        
+
+        currentConcentration = maxConcentration;
+
+        // Update the compliance indicator text
+        if (complianceIndicator)
+        {
+            complianceIndicator->setText(QString("Concentration: %1 µg/L").arg(maxConcentration, 0, 'f', 3));
+        }
+
         // Update the text to show the current concentration
-        complianceIndicator->setText(QString("Concentration: %1 µg/L").arg(maxConcentration, 0, 'f', 3));
     }
 
     // Setup X-axis with months
