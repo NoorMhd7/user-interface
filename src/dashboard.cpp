@@ -52,7 +52,7 @@ Dashboard::Dashboard(QWidget *parent)
     }
 
     // Add pollutant cards
-    addPollutantCard(tr("Pollutant Overview"), "", "", &Dashboard::navigateToPollutantOverview);
+    addPollutantCard(tr("Pollutant Overview"), tr("Concentration Level of 525 Pollutants"), "", &Dashboard::navigateToPollutantOverview);
     addPollutantCard(tr("POPs"), "", popPage->getSafetyAnalysisText(), &Dashboard::navigateToPOPs);
     addPollutantCard(tr("Litter Indicators"), "", litterIndicatorsPage->getDescriptionText(), &Dashboard::navigateToLitterIndicators);
     addPollutantCard(tr("Fluorinated Compounds"), tr("Compound Concentrations Over Time for All Locations\n"), tr("Compliance Indicators use traffic-light colours to show safety levels:\n"), &Dashboard::navigateToCompound);

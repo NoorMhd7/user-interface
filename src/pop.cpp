@@ -62,7 +62,7 @@ Pop::Pop(QWidget *parent)
 
     // Create chart and axes
     chart = new QChart();
-    chart->setTitle("Pollutant Concentrations Trends Over Time");
+    chart->setTitle(tr("Pollutant Concentrations Trends Over Time"));
     chart->setAnimationOptions(QChart::AllAnimations);
     chart->setBackgroundBrush(QColor("#2F3A4F"));
     chart->setTitleBrush(QBrush(Qt::white));

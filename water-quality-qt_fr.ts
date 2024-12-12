@@ -14,12 +14,12 @@
     <message>
         <location filename="src/dashboard.cpp" line="26"/>
         <source>Water Quality Monitor</source>
-        <translation>Moniteur de Qualité de l'Eau</translation>
+        <translation>Moniteur de Qualité de l&apos;Eau</translation>
     </message>
     <message>
         <location filename="src/dashboard.cpp" line="50"/>
         <source>Initialization Error</source>
-        <translation>Erreur d'Initialisation</translation>
+        <translation>Erreur d&apos;Initialisation</translation>
     </message>
     <message>
         <location filename="src/dashboard.cpp" line="50"/>
@@ -30,6 +30,11 @@
         <location filename="src/dashboard.cpp" line="55"/>
         <source>Pollutant Overview</source>
         <translation>Aperçu des Polluants</translation>
+    </message>
+    <message>
+        <location filename="src/dashboard.cpp" line="55"/>
+        <source>Concentration Level of 525 Pollutants</source>
+        <translation>Niveau de concentration de 525 polluants</translation>
     </message>
     <message>
         <location filename="src/dashboard.cpp" line="56"/>
@@ -68,31 +73,46 @@
     </message>
     <message>
         <location filename="src/dashboard.cpp" line="59"/>
+        <source>Average Level: 643.0995 
+Total Measurements: 144193 
+Below Detection Limit: 49929</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="src/dashboard.cpp" line="264"/>
+        <source>User Guide:
+
+1. View summarised data for each page on the Dashboard cards.
+2. Click on &apos;View Details&apos; buttons on each card to navigate to detailed pages.
+3. Use the &apos;Help&apos; button for assistance and the &apos;Credits&apos; button to view data sources.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Average Level: 643.0995
 Total Measurements: 144193
 Below Detection Limit: 49929</source>
-        <translation>Niveau Moyen : 643,0995
+        <translation type="vanished">Niveau Moyen : 643,0995
 Mesures Totales : 144193
 Sous la Limite de Détection : 49929</translation>
     </message>
     <message>
         <location filename="src/dashboard.cpp" line="70"/>
         <location filename="src/dashboard.cpp" line="90"/>
-        <location filename="src/dashboard.cpp" line="227"/>
+        <location filename="src/dashboard.cpp" line="254"/>
         <source>Help</source>
         <translation>Aide</translation>
     </message>
     <message>
         <location filename="src/dashboard.cpp" line="70"/>
         <location filename="src/dashboard.cpp" line="92"/>
-        <location filename="src/dashboard.cpp" line="236"/>
+        <location filename="src/dashboard.cpp" line="263"/>
         <source>User Guide</source>
-        <translation>Guide d'Utilisation</translation>
+        <translation>Guide d&apos;Utilisation</translation>
     </message>
     <message>
         <location filename="src/dashboard.cpp" line="70"/>
         <location filename="src/dashboard.cpp" line="94"/>
-        <location filename="src/dashboard.cpp" line="245"/>
+        <location filename="src/dashboard.cpp" line="272"/>
         <source>Credits</source>
         <translation>Crédits</translation>
     </message>
@@ -102,27 +122,26 @@ Sous la Limite de Détection : 49929</translation>
         <translation>Voir les Détails</translation>
     </message>
     <message>
-        <location filename="src/dashboard.cpp" line="228"/>
+        <location filename="src/dashboard.cpp" line="255"/>
         <source>This application helps you monitor water quality and pollutants. Click on View Details to find out more on each page.</source>
-        <translation>Cette application vous aide à surveiller la qualité de l'eau et les polluants. Cliquez sur Voir les Détails pour en savoir plus sur chaque page.</translation>
+        <translation>Cette application vous aide à surveiller la qualité de l&apos;eau et les polluants. Cliquez sur Voir les Détails pour en savoir plus sur chaque page.</translation>
     </message>
     <message>
-        <location filename="src/dashboard.cpp" line="237"/>
         <source>User Guide:
 1. View summarised data for each page on the Dashboard cards.
 2. Click on &apos;View Details&apos; buttons on each card to navigate to detailed pages.
 3. Use the &apos;Help&apos; button for assistance and the &apos;Credits&apos; button to view data sources.</source>
-        <translation>Guide d'Utilisation :
+        <translation type="vanished">Guide d&apos;Utilisation :
 1. Consultez les données résumées pour chaque page sur les cartes du Tableau de Bord.
-2. Cliquez sur les boutons 'Voir les Détails' de chaque carte pour accéder aux pages détaillées.
-3. Utilisez le bouton 'Aide' pour obtenir de l'assistance et le bouton 'Crédits' pour voir les sources de données.</translation>
+2. Cliquez sur les boutons &apos;Voir les Détails&apos; de chaque carte pour accéder aux pages détaillées.
+3. Utilisez le bouton &apos;Aide&apos; pour obtenir de l&apos;assistance et le bouton &apos;Crédits&apos; pour voir les sources de données.</translation>
     </message>
     <message>
-        <location filename="src/dashboard.cpp" line="246"/>
+        <location filename="src/dashboard.cpp" line="273"/>
         <source>Credits for data sources:
 Environment Food &amp; Rural Affairs, D. Download open water quality archive datasets. Available at: https://environment.data.gov.uk/water-quality/view/download (Accessed: 11 December 2024). </source>
         <translation>Crédits des sources de données :
-Environnement, Alimentation et Affaires Rurales, D. Téléchargement des jeux de données d'archives sur la qualité de l'eau. Disponible sur : https://environment.data.gov.uk/water-quality/view/download (Consulté le : 11 décembre 2024).</translation>
+Environnement, Alimentation et Affaires Rurales, D. Téléchargement des jeux de données d&apos;archives sur la qualité de l&apos;eau. Disponible sur : https://environment.data.gov.uk/water-quality/view/download (Consulté le : 11 décembre 2024).</translation>
     </message>
 </context>
 <context>
@@ -135,12 +154,12 @@ Environnement, Alimentation et Affaires Rurales, D. Téléchargement des jeux de
     <message>
         <location filename="src/LitterIndicators.cpp" line="106"/>
         <source>Animal Faeces</source>
-        <translation>Excréments d'Animaux</translation>
+        <translation>Excréments d&apos;Animaux</translation>
     </message>
     <message>
         <location filename="src/LitterIndicators.cpp" line="106"/>
         <source>Sewage Debris</source>
-        <translation>Débris d'Égouts</translation>
+        <translation>Débris d&apos;Égouts</translation>
     </message>
     <message>
         <location filename="src/LitterIndicators.cpp" line="107"/>
@@ -185,8 +204,14 @@ Environnement, Alimentation et Affaires Rurales, D. Téléchargement des jeux de
     <message>
         <location filename="src/LitterIndicators.cpp" line="188"/>
         <source>:
+
 </source>
-        <translation> :
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>:
+</source>
+        <translation type="vanished"> :
 </translation>
     </message>
     <message>
@@ -197,12 +222,12 @@ Environnement, Alimentation et Affaires Rurales, D. Téléchargement des jeux de
     <message>
         <location filename="src/LitterIndicators.cpp" line="188"/>
         <source>Animal Faeces: </source>
-        <translation>Excréments d'Animaux : </translation>
+        <translation>Excréments d&apos;Animaux : </translation>
     </message>
     <message>
         <location filename="src/LitterIndicators.cpp" line="188"/>
         <source>Sewage Debris: </source>
-        <translation>Débris d'Égouts : </translation>
+        <translation>Débris d&apos;Égouts : </translation>
     </message>
     <message>
         <location filename="src/LitterIndicators.cpp" line="188"/>
@@ -225,37 +250,40 @@ Environnement, Alimentation et Affaires Rurales, D. Téléchargement des jeux de
     <message>
         <location filename="src/mainwindow.cpp" line="27"/>
         <source>Water Quality Monitor</source>
-        <translation>Moniteur de Qualité de l'Eau</translation>
+        <translation>Moniteur de Qualité de l&apos;Eau</translation>
     </message>
 </context>
 <context>
     <name>PollutantOverview</name>
     <message>
-        <location filename="src/PollutantOverview.cpp" line="29"/>
         <source>Pollutants Time-Series Chart</source>
-        <translation>Graphique Chronologique des Polluants</translation>
+        <translation type="vanished">Graphique Chronologique des Polluants</translation>
     </message>
     <message>
-        <location filename="src/PollutantOverview.cpp" line="116"/>
         <source>Month</source>
-        <translation>Mois</translation>
+        <translation type="vanished">Mois</translation>
     </message>
     <message>
-        <location filename="src/PollutantOverview.cpp" line="123"/>
         <source>Concentration</source>
-        <translation>Concentration</translation>
+        <translation type="vanished">Concentration</translation>
     </message>
     <message>
-        <location filename="src/PollutantOverview.cpp" line="170"/>
-        <location filename="src/PollutantOverview.cpp" line="190"/>
         <source>Select Location</source>
-        <translation>Sélectionner l'Emplacement</translation>
+        <translation type="vanished">Sélectionner l&apos;Emplacement</translation>
     </message>
     <message>
-        <location filename="src/PollutantOverview.cpp" line="176"/>
-        <location filename="src/PollutantOverview.cpp" line="191"/>
         <source>Select Pollutant</source>
-        <translation>Sélectionner le Polluant</translation>
+        <translation type="vanished">Sélectionner le Polluant</translation>
+    </message>
+    <message>
+        <location filename="src/PollutantOverview.cpp" line="101"/>
+        <source>Compound Concentrations Over Time (2024)</source>
+        <translation>Concentrations des Composés dans le Temps (2024)</translation>
+    </message>
+    <message>
+        <location filename="src/PollutantOverview.cpp" line="208"/>
+        <source>Concentration in µg/L</source>
+        <translation>Concentration en µg/L</translation>
     </message>
 </context>
 <context>
@@ -264,6 +292,11 @@ Environnement, Alimentation et Affaires Rurales, D. Téléchargement des jeux de
         <location filename="src/pop.cpp" line="23"/>
         <source>Organic Pollutants Line Chart</source>
         <translation>Graphique Linéaire des Polluants Organiques</translation>
+    </message>
+    <message>
+        <location filename="src/pop.cpp" line="65"/>
+        <source>Pollutant Concentrations Trends Over Time</source>
+        <translation>Tendances des concentrations de polluants au fil du temps</translation>
     </message>
     <message>
         <location filename="src/pop.cpp" line="76"/>

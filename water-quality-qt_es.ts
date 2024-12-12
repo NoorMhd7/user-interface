@@ -32,6 +32,11 @@
         <translation>Resumen de Contaminantes</translation>
     </message>
     <message>
+        <location filename="src/dashboard.cpp" line="55"/>
+        <source>Concentration Level of 525 Pollutants</source>
+        <translation>Nivel de concentración de 525 contaminantes</translation>
+    </message>
+    <message>
         <location filename="src/dashboard.cpp" line="56"/>
         <source>POPs</source>
         <translation>COPs</translation>
@@ -78,21 +83,21 @@ Por Debajo del Límite de Detección: 49929</translation>
     <message>
         <location filename="src/dashboard.cpp" line="70"/>
         <location filename="src/dashboard.cpp" line="90"/>
-        <location filename="src/dashboard.cpp" line="227"/>
+        <location filename="src/dashboard.cpp" line="254"/>
         <source>Help</source>
         <translation>Ayuda</translation>
     </message>
     <message>
         <location filename="src/dashboard.cpp" line="70"/>
         <location filename="src/dashboard.cpp" line="92"/>
-        <location filename="src/dashboard.cpp" line="236"/>
+        <location filename="src/dashboard.cpp" line="263"/>
         <source>User Guide</source>
         <translation>Guía de Usuario</translation>
     </message>
     <message>
         <location filename="src/dashboard.cpp" line="70"/>
         <location filename="src/dashboard.cpp" line="94"/>
-        <location filename="src/dashboard.cpp" line="245"/>
+        <location filename="src/dashboard.cpp" line="272"/>
         <source>Credits</source>
         <translation>Créditos</translation>
     </message>
@@ -102,25 +107,25 @@ Por Debajo del Límite de Detección: 49929</translation>
         <translation>Ver Detalles</translation>
     </message>
     <message>
-        <location filename="src/dashboard.cpp" line="228"/>
+        <location filename="src/dashboard.cpp" line="255"/>
         <source>This application helps you monitor water quality and pollutants. Click on View Details to find out more on each page.</source>
         <translation>Esta aplicación te ayuda a monitorear la calidad del agua y los contaminantes. Haz clic en Ver Detalles para obtener más información en cada página.</translation>
     </message>
     <message>
-        <location filename="src/dashboard.cpp" line="237"/>
+        <location filename="src/dashboard.cpp" line="264"/>
         <source>User Guide:
 
 1. View summarised data for each page on the Dashboard cards.
-2. Click on 'View Details' buttons on each card to navigate to detailed pages.
-3. Use the 'Help' button for assistance and the 'Credits' button to view data sources.</source>
+2. Click on &apos;View Details&apos; buttons on each card to navigate to detailed pages.
+3. Use the &apos;Help&apos; button for assistance and the &apos;Credits&apos; button to view data sources.</source>
         <translation>Guía de Usuario:
 
 1. Ve los datos resumidos de cada página en las tarjetas del Panel de Control.
-2. Haz clic en los botones 'Ver Detalles' en cada tarjeta para navegar a las páginas detalladas.
-3. Usa el botón 'Ayuda' para obtener asistencia y el botón 'Créditos' para ver las fuentes de datos.</translation>
+2. Haz clic en los botones &apos;Ver Detalles&apos; en cada tarjeta para navegar a las páginas detalladas.
+3. Usa el botón &apos;Ayuda&apos; para obtener asistencia y el botón &apos;Créditos&apos; para ver las fuentes de datos.</translation>
     </message>
     <message>
-        <location filename="src/dashboard.cpp" line="246"/>
+        <location filename="src/dashboard.cpp" line="273"/>
         <source>Credits for data sources:
 Environment Food &amp; Rural Affairs, D. Download open water quality archive datasets. Available at: https://environment.data.gov.uk/water-quality/view/download (Accessed: 11 December 2024). </source>
         <translation>Créditos de las fuentes de datos:
@@ -235,31 +240,34 @@ Medio Ambiente, Alimentación y Asuntos Rurales, D. Descarga de conjuntos de dat
 <context>
     <name>PollutantOverview</name>
     <message>
-        <location filename="src/PollutantOverview.cpp" line="29"/>
         <source>Pollutants Time-Series Chart</source>
-        <translation>Gráfico de Series Temporales de Contaminantes</translation>
+        <translation type="vanished">Gráfico de Series Temporales de Contaminantes</translation>
     </message>
     <message>
-        <location filename="src/PollutantOverview.cpp" line="116"/>
         <source>Month</source>
-        <translation>Mes</translation>
+        <translation type="vanished">Mes</translation>
     </message>
     <message>
-        <location filename="src/PollutantOverview.cpp" line="123"/>
         <source>Concentration</source>
-        <translation>Concentración</translation>
+        <translation type="vanished">Concentración</translation>
     </message>
     <message>
-        <location filename="src/PollutantOverview.cpp" line="170"/>
-        <location filename="src/PollutantOverview.cpp" line="190"/>
         <source>Select Location</source>
-        <translation>Seleccionar Ubicación</translation>
+        <translation type="vanished">Seleccionar Ubicación</translation>
     </message>
     <message>
-        <location filename="src/PollutantOverview.cpp" line="176"/>
-        <location filename="src/PollutantOverview.cpp" line="191"/>
         <source>Select Pollutant</source>
-        <translation>Seleccionar Contaminante</translation>
+        <translation type="vanished">Seleccionar Contaminante</translation>
+    </message>
+    <message>
+        <location filename="src/PollutantOverview.cpp" line="101"/>
+        <source>Compound Concentrations Over Time (2024)</source>
+        <translation>Concentraciones de Compuestos a lo Largo del Tiempo (2024)</translation>
+    </message>
+    <message>
+        <location filename="src/PollutantOverview.cpp" line="208"/>
+        <source>Concentration in µg/L</source>
+        <translation>Concentración en µg/L</translation>
     </message>
 </context>
 <context>
@@ -268,6 +276,11 @@ Medio Ambiente, Alimentación y Asuntos Rurales, D. Descarga de conjuntos de dat
         <location filename="src/pop.cpp" line="23"/>
         <source>Organic Pollutants Line Chart</source>
         <translation>Gráfico de Línea de Contaminantes Orgánicos</translation>
+    </message>
+    <message>
+        <location filename="src/pop.cpp" line="65"/>
+        <source>Pollutant Concentrations Trends Over Time</source>
+        <translation>Tendencias de las concentraciones de contaminantes a lo largo del tiempo</translation>
     </message>
     <message>
         <location filename="src/pop.cpp" line="76"/>

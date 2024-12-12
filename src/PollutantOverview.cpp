@@ -205,7 +205,7 @@ void PollutantOverview::loadChartData()
 
     // Setup Y-axis with concentration values
     QValueAxis *axisY = new QValueAxis();
-    axisY->setTitleText("Concentration in µg/L");
+    axisY->setTitleText(tr("Concentration in µg/L"));
     axisY->setLabelsBrush(QBrush(Qt::white));
     axisY->setTitleBrush(QBrush(Qt::white));
 

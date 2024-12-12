@@ -27,7 +27,7 @@ This application is designed to monitor and analyse water quality data, with a f
       ```
     - Run the application:
       ```bash
-      ./[application-executable-name]
+      ./water-quality-qt
       ```
 
 3. **Data Setup**:
@@ -38,12 +38,12 @@ This application is designed to monitor and analyse water quality data, with a f
 
 ### Main Components
 - **Dashboard**: Provides an overview of the application’s main pages and core functionality.
-- **Data Page**: Displays pollutant data in a table format, allowing us to browse relevant fields. Utilises the model/view architecture from the starter code.
+- **Data Page**: Displays pollutant data in a table format, allowing us to browse relevant fields. Utilises the model/view architecture from the starter code. Stats pop-up to summarise data.
 - **Analysis Pages**:
-    - **Pollutant Trends**: Visualises changes in pollutant levels over time.
-    - **Safety Compliance**: Displays alerts for pollutant levels that exceed recommended limits.
-    - **Geographical Hotspots**: Provides a map view or heat map of sampling points.
-    - **Summary Statistics**: Calculates and displays averages, maximums, minimums, and other summary data.
+    - **Pollutant Overview**: Visualises changes in pollutant levels over time.
+    - **POP**: Traffic Color Chart with POP Trends over time in different places.
+    - **Litter Indicators**: Pysical Litter Stats across different waters.
+    - **Compounds**: Compound Concentration and hazard levels.
 
 ## Key Features
 - **Internationalisation**: The app supports language changes based on system locale settings.
@@ -55,23 +55,6 @@ This application is designed to monitor and analyse water quality data, with a f
 - **Data Visualisation**: Includes basic charts and compliance indicators to ensure intuitive data interpretation.
 - **"Card" Layout**: The UI is modularised into “cards,” each focused on a specific data group or control area.
 
-## Included Files
-- **Source Files**: Core source files such as `main.cpp`, `dataset.cpp`, `model.cpp`, etc.
-- **Consent and Participant Information Sheet (PIS)**: Blank templates for ethical compliance, as required in evaluations.
-- **COMP2811_CW3_Requirements** Detailed requirements and expectations for the project.
-- **COMP2811 Feedback Fruits Tasks Overview**: List of required Feedback Fruits tasks
-## Known Issues
-- List any known bugs or limitations here. This may include compatibility issues, unsupported data formats, etc.
 
 ## Future Development
 - Briefly describe potential features, optimisations, or additional datasets that could be integrated in future versions.
-
-## Acknowledgments
-- Acknowledge any sources, datasets, or resources that contributed to this project.
-- I would like to thank Nick Efford for all his work on this module.
-- Samson Fabiyi and Danyang Zheng for their input and management of XJCO2811 at SWJTU.
-
-## Contact
-For questions or collaboration inquiries, contact:
-- **[Julian Brooks]** - [j.brooks2@leeds.ac.uk]
-- **Module:** COMP2811 - User Interfaces - University of Leeds
