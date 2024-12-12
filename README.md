@@ -19,6 +19,12 @@ QLocale::setDefault(QLocale("en_EN"));
 ```
 Then, change the file name `"water-quality-qt_en.qm"` to the file specified for each language.
 
+We made the cmake file able to work in the Linux machine. For it to work on the latest Qt version change these two lines in your cmake:
+```cpp
+qt_standard_project_setup(I18N_TRANSLATED_LANGUAGES de fr es)
+qt_add_translations(water-quality-qt)
+```
+
 ## Prerequisites
 - Qt 6.x
 - CMake 3.16+
@@ -46,5 +52,5 @@ Then, change the file name `"water-quality-qt_en.qm"` to the file specified for 
 ## Team Members
 Muhammad Arif Noor(ID: 201692115),
 Samantha Ramirez(ID: 201725731),
-Josephine Bunce,
+Josephine Bunce (ID: 201708435),
 Shayan Hosseini,

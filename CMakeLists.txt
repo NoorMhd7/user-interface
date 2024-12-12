@@ -8,7 +8,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Core LinguistTools Gui Widgets Charts)
-qt_standard_project_setup(I18N_TRANSLATED_LANGUAGES de fr es)
+qt_standard_project_setup()
 
 set(PROJECT_SOURCES
     src/main.cpp
@@ -31,7 +31,7 @@ add_executable(water-quality-qt
     ${PROJECT_SOURCES}
 )
 
-qt_add_translations(water-quality-qt)
+qt_add_translations(water-quality-qt TS_FILES water-quality-qt_de.ts water-quality-qt_es.ts water-quality-qt_fr.ts)
 
 
 target_link_libraries(water-quality-qt PRIVATE
