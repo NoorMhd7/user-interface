@@ -44,7 +44,7 @@ Then, change the file name `"water-quality-qt_en.qm"` to the file specified for 
    ```
 
 ## Team Members
-Muhammad Arif Noor, ID: 201692115
-Samantha Ramirez, ID: 201725731
+Muhammad Arif Noor(ID: 201692115),
+Samantha Ramirez(ID: 201725731),
 Josephine Bunce,
 Shayan Hosseini,
