@@ -18,6 +18,7 @@ public:
   double meanDepth() const;
   double sumResult(const QString &litterType, const QString &location, const QString &materialType) const;
   double sumCompound(const QString &compoundType, const QString &location, const QString &time) const;
+  double sumLitter(const QString &litterType, const QString &time) const;
 
 private:
   std::vector<Quake> data;

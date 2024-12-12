@@ -1,16 +1,15 @@
-#ifndef POLLUTANTOVERVIEW_H
-#define POLLUTANTOVERVIEW_H
+#ifndef POLLUTANT_OVERVIEW_H
+#define POLLUTANT_OVERVIEW_H
 
 #include <QWidget>
+#include <QtCharts/QChartView>
+#include <QtCharts/QLineSeries>
 #include <QVBoxLayout>
-#include <QComboBox>
+#include <QHBoxLayout>
+#include <QLineEdit>
+#include <QPushButton>
 #include <QLabel>
-#include <QtCharts>
-#include <QMessageBox>
-#include <QToolTip>
-#include <QSet>
-#include <QFile>
-#include <QTextStream>
+#include "data/model.hpp"
 
 class PollutantOverview : public QWidget
 {
@@ -18,23 +17,42 @@ class PollutantOverview : public QWidget
 
 public:
     explicit PollutantOverview(QWidget *parent = nullptr);
-
-private slots:
-    void loadChartData();
-    void showToolTip(const QPointF &point);
-    void onPointClicked(QPointF point);
+    QStringList getCompoundBoxTexts() const;
+    QStringList getCompoundBoxColors() const;
 
 private:
-    void setupUI();
-    void loadInitialData();
-    void setupSeriesTooltips(QLineSeries *series);
-    void setupClickEvent(QLineSeries *series);
+    // Method to set up the user interface
+    void setupUI(); 
 
+    // Method to load chart data
+    void loadChartData(); 
+
+    // Data model instance
+    QuakeModel model; 
+
+    // Main layout for arranging widgets
     QVBoxLayout *mainLayout;
-    QComboBox *locationFilter;
-    QComboBox *pollutantSearchBar;
+
+    // Layout for litter boxes
+    QHBoxLayout *litterBoxLayout;
+
+    // Widget to display the chart
     QChartView *chartView;
-    QChart *chart;
+
+    // Search input for litter types
+    QLineEdit *searchInput;
+
+    // Button to refresh the chart
+    QPushButton *searchButton;
+
+    // Label to display compliance status
+    QLabel *complianceStatus;
+
+    // QLabel instances for displaying compound names
+    QLabel *litterName;
+    
+    // List to store the compound boxes for display
+    QList<QLabel*> litterBoxes;
 };
 
-#endif // POLLUTANTOVERVIEW_H
+#endif // POLLUTANT_OVERVIEW_H

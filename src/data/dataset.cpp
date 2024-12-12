@@ -109,3 +109,25 @@ double QuakeDataset::sumCompound(const QString &compoundType, const QString &loc
   }
   return sum;
 }
+
+double QuakeDataset::sumLitter(const QString &litterType, const QString &time) const
+{
+  if (data.empty())
+  {
+    return 0.0; // Return 0 if no data is available
+  }
+
+  double sum = 0.0;
+
+  for (const auto &measurement : data)
+  {
+    bool matchesTime = (time == "All Times") || (QString::fromStdString(measurement.getTime()).startsWith(time));
+
+    if (measurement.getPollutant() == litterType.toStdString() && matchesTime &&
+        (measurement.getQualifier() != "<" || measurement.getQualifier() != ">"))
+    {
+      sum += measurement.getMagnitude();
+    }
+  }
+  return sum;
+}

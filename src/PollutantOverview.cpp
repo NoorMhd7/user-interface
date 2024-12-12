@@ -3,296 +3,233 @@
 #include <QtCharts/QChart>
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QCategoryAxis>
-
-#include <QStringList>
+#include <QtCharts/QXYSeries>
 #include <QGraphicsSimpleTextItem>
 #include <QMouseEvent>
 #include <QtDebug>
-#include <QMessageBox>
+#include <iostream>
+#include <QRegularExpression>
 #include "data/config.h"
 
 PollutantOverview::PollutantOverview(QWidget *parent)
     : QWidget(parent)
 {
     setupUI();
-    loadInitialData();
+    loadChartData();
 }
 
 void PollutantOverview::setupUI()
 {
-    // Main layout
     mainLayout = new QVBoxLayout(this);
-    mainLayout->setContentsMargins(20, 20, 20, 20);
-    mainLayout->setSpacing(15);
 
-    // Title
-    QLabel *titleLabel = new QLabel(tr("Pollutants Time-Series Chart"), this);
-    QFont titleFont("Arial", 24, QFont::Bold);
-    titleLabel->setFont(titleFont);
-    titleLabel->setStyleSheet("color: #f55ff3;");
-    titleLabel->setAlignment(Qt::AlignCenter);
-    mainLayout->addWidget(titleLabel);
+    // Initialize and configure search layout
+    QHBoxLayout *searchLayout = new QHBoxLayout();
 
-    // Location Dropdown
-    locationFilter = new QComboBox(this);
-    locationFilter->setFixedWidth(200);
-    locationFilter->setFixedHeight(30);
-    locationFilter->setStyleSheet(R"(
-        QComboBox {
-            background-color: #4A5A76;
-            color: white;
-            border: none;
-            padding: 5px;
-            border-radius: 4px;
-        }
-        QComboBox:hover {
-            background-color: #3D485E;
-        }
-        QComboBox QAbstractItemView {
-            background-color: #2F3A4F;
-            color: white;
-            selection-background-color: #4A5A76;
-            selection-color: white;
-            border: none;
-            outline: none;
-            padding: 5px;
-        }
-        QComboBox QAbstractItemView::item {
-            min-height: 25px;
-        }
-        QComboBox QAbstractItemView::item:hover {
-            background-color: #4A5A76;
-        }
-    )");
-    mainLayout->addWidget(locationFilter, 0, Qt::AlignLeft);
+    // Setup search input
+    searchInput = new QLineEdit(this);
+    searchInput->setPlaceholderText("Search Litter Type (e.g., 1,1,2-Trichloroethane or Chloroform)");
+    searchInput->setFixedHeight(30);
+    searchLayout->addWidget(searchInput);
 
-    // Pollutant Dropdown
-    pollutantSearchBar = new QComboBox(this);
-    pollutantSearchBar->setFixedWidth(200);
-    pollutantSearchBar->setEditable(true);
-    pollutantSearchBar->setPlaceholderText("Search for pollutants...");
-    pollutantSearchBar->setStyleSheet(R"(
-        QComboBox {
-            background-color: #4A5A76;
-            color: white;
-            border: none;
-            padding: 5px;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-        QComboBox:hover {
-            background-color: #3D485E;
-        }
-        QComboBox QAbstractItemView {
-            background-color: #2F3A4F;
-            color: white;
-            selection-background-color: #4A5A76;
-            selection-color: white;
-            border: none;
-            outline: none;
-            padding: 5px;
-        }
-        QComboBox QAbstractItemView::item {
-            min-height: 25px;
-        }
-        QComboBox QAbstractItemView::item:hover {
-            background-color: #4A5A76;
-        }
-    )");
-    mainLayout->addWidget(pollutantSearchBar, 0, Qt::AlignLeft);
+    // Setup search button
+    searchButton = new QPushButton("Search", this);
+    searchButton->setFixedHeight(30);
+    searchLayout->addWidget(searchButton);
 
-    // Create chart
-    chart = new QChart();
-    chart->setTitle("Pollutant Concentrations Over Time");
-    chart->setAnimationOptions(QChart::AllAnimations);
-    chart->setBackgroundBrush(QColor("#2F3A4F"));
-    chart->setTitleBrush(QBrush(Qt::white));
-    chart->legend()->setLabelBrush(QBrush(Qt::white));
+    mainLayout->addLayout(searchLayout);
 
-    // Create axes
-    QValueAxis *axisX = new QValueAxis;
-    QValueAxis *axisY = new QValueAxis;
-
-    axisX->setTitleText(tr("Month"));
-    axisX->setRange(1, 12);
-    axisX->setLabelsColor(Qt::white);
-    axisX->setTitleBrush(QBrush(Qt::white));
-    axisX->setGridLineColor(QColor("#4A5A76"));
-    chart->addAxis(axisX, Qt::AlignBottom);
-
-    axisY->setTitleText(tr("Concentration"));
-    axisY->setLabelsColor(Qt::white);
-    axisY->setTitleBrush(QBrush(Qt::white));
-    axisY->setGridLineColor(QColor("#4A5A76"));
-    chart->addAxis(axisY, Qt::AlignLeft);
-
-    // Chart view
-    chartView = new QChartView(chart);
+    // Initialize chart view
+    chartView = new QChartView(this);
     chartView->setRenderHint(QPainter::Antialiasing);
-    chartView->setMinimumHeight(500);
-    chartView->setBackgroundBrush(QColor("#2F3A4F"));
-    mainLayout->addWidget(chartView, 1);
+    mainLayout->addWidget(chartView);
 
-    // Connect signals
-    connect(locationFilter, &QComboBox::currentTextChanged, this, &PollutantOverview::loadChartData);
-    connect(pollutantSearchBar, &QComboBox::currentTextChanged, this, &PollutantOverview::loadChartData);
-}
+    // Initialize litter boxes layout
+    litterBoxLayout = new QHBoxLayout();
 
-void PollutantOverview::loadInitialData()
-{
-    QFile file("../src/data/.csv");
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        QMessageBox::critical(this, "Error", "Could not open file");
-        return;
-    }
+    // Create a larger compliance indicator rectangle
+    QLabel *complianceIndicator = new QLabel("Compliance Indicator", this);
+    complianceIndicator->setObjectName("complianceIndicator");
+    complianceIndicator->setFixedHeight(150); // Larger height
+    complianceIndicator->setAlignment(Qt::AlignCenter);
+    
+    // Set up tooltip with detailed explanation
+    complianceIndicator->setToolTip(
+        "Compliance Indicators use traffic-light colours to show safety levels:\n"
+        "  - Green indicates concentration < 0.08 µg/L (Safe)\n"
+        "  - Yellow indicates concentration between 0.08 and 0.1 µg/L (Caution)\n"
+        "  - Red indicates concentration > 0.1 µg/L (Unsafe)"
+    );
 
-    QTextStream in(&file);
-    QString headerLine = in.readLine(); // Skip header
+    // Enable tooltips
+    complianceIndicator->setMouseTracking(true);
 
-    QSet<QString> uniqueLocations;
-    QSet<QString> uniquePollutants;
+    // Default style
+    complianceIndicator->setStyleSheet(
+        "background-color: green; "
+        "color: white; "
+        "font-size: 24px; " // Larger font
+        "border-radius: 15px; "
+        "padding: 20px;"
+    );
 
-    while (!in.atEnd())
-    {
-        QString line = in.readLine();
-        QStringList fields = line.split(",");
+    mainLayout->addWidget(complianceIndicator);
+    setLayout(mainLayout);
 
-        if (fields.size() >= 4)
-        {
-            uniqueLocations.insert(fields[0].trimmed());
-            uniquePollutants.insert(fields[2].trimmed());
-        }
-    }
-
-    // Populate dropdowns
-    locationFilter->clear();
-    locationFilter->addItem(tr("Select Location"));
-    QStringList sortedLocations = uniqueLocations.values();
-    std::sort(sortedLocations.begin(), sortedLocations.end());
-    locationFilter->addItems(sortedLocations);
-
-    pollutantSearchBar->clear();
-    pollutantSearchBar->addItem(tr("Select Pollutant"));
-    QStringList sortedPollutants = uniquePollutants.values();
-    std::sort(sortedPollutants.begin(), sortedPollutants.end());
-    pollutantSearchBar->addItems(sortedPollutants);
-
-    file.close();
+    // Connect search button click to data loading
+    connect(searchButton, &QPushButton::clicked, this, &PollutantOverview::loadChartData);
+    connect(searchInput, &QLineEdit::returnPressed, this, &PollutantOverview::loadChartData);
 }
 
 void PollutantOverview::loadChartData()
 {
-    QString selectedLocation = locationFilter->currentText();
-    QString selectedPollutant = pollutantSearchBar->currentText();
-
-    // Skip if no valid selection
-    if (selectedLocation == tr("Select Location") ||
-        selectedPollutant == tr("Select Pollutant"))
+    try
     {
+        // Update model data from CSV file
+        model.updateFromFile(Config::UNIVERSAL_FILE_PATH);
+    }
+    catch (const std::exception &error)
+    {
+        QMessageBox::critical(this, "CSV File Error", error.what());
         return;
     }
 
-    QFile file("../src/data/.csv");
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        QMessageBox::critical(this, "Error", "Could not open file");
-        return;
-    }
+    // Retrieve searched litter type
+    QString searchedLitter = searchInput->text();
 
-    QTextStream in(&file);
-    QString headerLine = in.readLine(); // Skip header
+    // Initialize and configure chart
+    QChart *chart = new QChart();
+    chart->setTitle(tr("Compound Concentrations Over Time (2024)"));
+    chart->setAnimationOptions(QChart::SeriesAnimations);
+    chart->setBackgroundBrush(Qt::NoBrush);
+    chartView->setMinimumHeight(500);
+    chartView->setBackgroundBrush(QColor("#2F3A4F"));
+    chart->setTitleBrush(QBrush(Qt::white));
+    chart->legend()->setLabelBrush(QBrush(Qt::white));
 
-    // Create new series
+    // Set custom title font
+    QFont titleFont = chart->titleFont();
+    titleFont.setBold(true);
+    chart->setTitleFont(titleFont);
+    chart->setTitleBrush(QBrush(Qt::white));
+
+    QList<QLineSeries *> seriesList;
+    QMap<QString, double> litterValues;
+
+    double yMin = std::numeric_limits<double>::max();
+    double yMax = std::numeric_limits<double>::lowest();
+
+    // Create series only for the searched litter
     QLineSeries *series = new QLineSeries();
-    series->setName(selectedPollutant);
-    series->setPen(QPen(QColor("#f55ff3"), 2));
+    series->setName(searchedLitter);
 
-    QVector<QPair<int, double>> dataPoints;
-    double maxY = 0;
+    // Assign color based on litter type
+    QPen pen;
+    pen.setColor(QColor("#f55ff3"));
+    series->setPen(pen);
 
-    // Debug output
-    qDebug() << "Loading data for:" << selectedLocation << selectedPollutant;
-
-    while (!in.atEnd())
+    // Calculate monthly sums for the selected year and litter
+    double maxConcentration = 0.0;
+    for (int month = 1; month <= 9; ++month)
     {
-        QString line = in.readLine();
-        QStringList fields = line.split(",");
+        QString monthStr = QString::number(month).rightJustified(2, '0');
+        QString timeFilter = "2024-" + monthStr;
 
-        if (fields.size() >= 4)
+        double sum = model.sumLitter(searchedLitter, timeFilter);
+        if (std::isnan(sum))
         {
-            QString location = fields[0].trimmed();
-            QString pollutant = fields[2].trimmed();
-
-            if (location == selectedLocation && pollutant == selectedPollutant)
-            {
-                bool ok1, ok2;
-                int month = fields[1].trimmed().toInt(&ok1);
-                double concentration = fields[3].trimmed().toDouble(&ok2);
-
-                if (ok1 && ok2)
-                {
-                    dataPoints.append(qMakePair(month, concentration));
-                    maxY = qMax(maxY, concentration);
-                    qDebug() << "Added point:" << month << concentration;
-                }
-            }
+            qWarning() << "Invalid result for" << searchedLitter << "in month" << timeFilter;
+            sum = 0.0;
         }
+
+        series->append(month, sum);
+        maxConcentration = std::max(maxConcentration, sum);
+
+        yMin = std::min(yMin, sum);
+        yMax = std::max(yMax, sum);
     }
 
-    // Sort by month and add to series
-    std::sort(dataPoints.begin(), dataPoints.end());
-    for (const auto &point : dataPoints)
-    {
-        series->append(point.first, point.second);
-    }
-
-    // Update chart
-    chart->removeAllSeries();
+    litterValues[searchedLitter] = maxConcentration;
+    seriesList.append(series);
     chart->addSeries(series);
 
-    // Update axes
-    chart->axes(Qt::Horizontal).first()->setRange(1, 12);
-    chart->axes(Qt::Vertical).first()->setRange(0, maxY * 1.2); // 20% padding
+    // Find the compliance indicator label
+    QLabel *complianceIndicator = findChild<QLabel*>("complianceIndicator");
+    if (complianceIndicator)
+    {
+        // Update compliance indicator color based on max concentration
+        if (maxConcentration > 0.1)
+        {
+            complianceIndicator->setStyleSheet(
+                "background-color: red; "
+                "color: white; "
+                "font-size: 24px; "
+                "border-radius: 15px; "
+                "padding: 20px;"
+            );
+        }
+        else if (maxConcentration > 0.08)
+        {
+            complianceIndicator->setStyleSheet(
+                "background-color: yellow; "
+                "color: black; "
+                "font-size: 24px; "
+                "border-radius: 15px; "
+                "padding: 20px;"
+            );
+        }
+        else
+        {
+            complianceIndicator->setStyleSheet(
+                "background-color: green; "
+                "color: white; "
+                "font-size: 24px; "
+                "border-radius: 15px; "
+                "padding: 20px;"
+            );
+        }
+        
+        // Update the text to show the current concentration
+        complianceIndicator->setText(QString("Concentration: %1 µg/L").arg(maxConcentration, 0, 'f', 3));
+    }
 
-    // Make sure series is attached to both axes
-    series->attachAxis(qobject_cast<QValueAxis *>(chart->axes(Qt::Horizontal).first()));
-    series->attachAxis(qobject_cast<QValueAxis *>(chart->axes(Qt::Vertical).first()));
+    // Setup X-axis with months
+    QCategoryAxis *axisX = new QCategoryAxis();
+    axisX->setTitleText("Month");
+    axisX->setLabelsBrush(QBrush(Qt::white));
+    axisX->setTitleBrush(QBrush(Qt::white));
+    for (int i = 1; i <= 12; ++i)
+    {
+        axisX->append(QString("M%1").arg(i), i);
+    }
+    chart->addAxis(axisX, Qt::AlignBottom);
 
-    // Update chart title
-    chart->setTitle(QString("%1 - %2 (%3 measurements)")
-                        .arg(selectedLocation)
-                        .arg(selectedPollutant)
-                        .arg(dataPoints.size()));
+    // Setup Y-axis with concentration values
+    QValueAxis *axisY = new QValueAxis();
+    axisY->setTitleText("Concentration in µg/L");
+    axisY->setLabelsBrush(QBrush(Qt::white));
+    axisY->setTitleBrush(QBrush(Qt::white));
 
-    file.close();
+    // Set dynamic Y-axis range
+    axisY->setRange(0.0, yMax + (yMax - yMin) * 0.1);
+    axisY->setLabelFormat("%.3f");
+    axisY->setTickCount(10);
 
-    // Debug output
-    qDebug() << "Total points plotted:" << dataPoints.size();
-}
+    // Set grid lines for both axes
+    QPen gridPen;
+    gridPen.setColor(QColor(255, 255, 255, 50));
+    gridPen.setWidth(1);
 
-void PollutantOverview::setupSeriesTooltips(QLineSeries *series)
-{
-    connect(series, &QLineSeries::hovered, this, &PollutantOverview::showToolTip);
-}
+    axisX->setGridLinePen(gridPen);
+    axisY->setGridLinePen(gridPen);
 
-void PollutantOverview::showToolTip(const QPointF &point)
-{
-    QString toolTipText = QString("Month: %1\nConcentration: %2")
-                              .arg(point.x())
-                              .arg(point.y(), 0, 'f', 4);
-    QToolTip::showText(QCursor::pos(), toolTipText);
-}
+    chart->addAxis(axisY, Qt::AlignLeft);
 
-void PollutantOverview::setupClickEvent(QLineSeries *series)
-{
-    connect(series, &QXYSeries::clicked, this, &PollutantOverview::onPointClicked);
-}
+    // Attach axes to the series
+    for (QLineSeries *s : seriesList)
+    {
+        s->attachAxis(axisX);
+        s->attachAxis(axisY);
+    }
 
-void PollutantOverview::onPointClicked(QPointF point)
-{
-    QString details = QString("Month: %1\nConcentration: %2")
-                          .arg(point.x())
-                          .arg(point.y(), 0, 'f', 4);
-    QMessageBox::information(this, "Measurement Details", details);
+    chartView->setChart(chart); // Set the chart to the view
 }
