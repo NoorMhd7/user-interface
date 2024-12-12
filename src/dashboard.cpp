@@ -177,33 +177,57 @@ void Dashboard::resizeEvent(QResizeEvent *event)
 
 void Dashboard::adjustCardLayout()
 {
-    int minCardWidth = 500; // Minimum card width
-    int spacing = 10; // Spacing between cards
-    int availableWidth = scrollArea->viewport()->width() - contentLayout->contentsMargins().left() - contentLayout->contentsMargins().right();
-    int columns = availableWidth / (minCardWidth + spacing);
+    if (cards.isEmpty()) return;
 
-    if (columns < 1) columns = 1;
+    int minCardWidth = 500;
+    int spacing = 10;
+    int availableWidth = scrollArea->viewport()->width() - 
+                        contentLayout->contentsMargins().left() - 
+                        contentLayout->contentsMargins().right();
+    
+    // Calculate number of columns (minimum 1)
+    int columns = std::max(1, availableWidth / (minCardWidth + spacing));
+    
+    // Only reorganize if number of columns has changed
+    static int previousColumns = 0;
+    if (previousColumns == columns && !contentLayout->isEmpty()) {
+        return;
+    }
+    previousColumns = columns;
 
-    // Calculate the actual card width to fill the available space
+    // Calculate optimal card width
     int cardWidth = (availableWidth - (columns - 1) * spacing) / columns;
 
-    // Clear the current layout
-    QLayoutItem *item;
-    while ((item = contentLayout->takeAt(0)) != nullptr) {
+    // Temporarily hide widget to prevent flickering
+    contentWidget->setVisible(false);
+
+    // Remove items from layout but don't delete widgets
+    while (contentLayout->count()) {
+        QLayoutItem* item = contentLayout->takeAt(0);
         if (item->widget()) {
-            item->widget()->setParent(nullptr);
+            item->widget()->hide();
         }
         delete item;
     }
 
-    // Add cards to the layout
+    // Reset layout stretches
+    for (int i = 0; i < contentLayout->columnCount(); ++i) {
+        contentLayout->setColumnStretch(i, 0);
+    }
+    for (int i = 0; i < contentLayout->rowCount(); ++i) {
+        contentLayout->setRowStretch(i, 0);
+    }
+
+    // Add cards back to layout
     int row = 0;
     int col = 0;
-    for (QFrame *card : cards) {
+    for (QFrame* card : cards) {
         if (card) {
             card->setMinimumWidth(minCardWidth);
             card->setMaximumWidth(cardWidth);
             contentLayout->addWidget(card, row, col);
+            card->show();
+            
             col++;
             if (col >= columns) {
                 col = 0;
@@ -212,13 +236,16 @@ void Dashboard::adjustCardLayout()
         }
     }
 
-    // Add spacers to make the cards scalable and the same size
-    for (int r = 0; r <= row; ++r) {
-        for (int c = 0; c < columns; ++c) {
-            contentLayout->setColumnStretch(c, 1);
-            contentLayout->setRowStretch(r, 1);
-        }
+    // Set equal stretch for columns and rows
+    for (int c = 0; c < columns; ++c) {
+        contentLayout->setColumnStretch(c, 1);
     }
+    for (int r = 0; r <= row; ++r) {
+        contentLayout->setRowStretch(r, 1);
+    }
+
+    // Make widget visible again
+    contentWidget->setVisible(true);
 }
 
 void Dashboard::showHelp()

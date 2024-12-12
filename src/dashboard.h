@@ -34,6 +34,7 @@ private slots:
 private:
     void addPollutantCard(const QString &title, const QString &summary, const QString &description, void (Dashboard::*slot)());
     void adjustCardLayout();
+    int previousColumns = 0;
 
     QScrollArea *scrollArea;
     QWidget *contentWidget;
