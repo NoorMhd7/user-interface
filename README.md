@@ -12,9 +12,9 @@ A Qt-based desktop application for visualizing UK/EU water quality data with emp
 - Internationalization support
 
 <p align="center">
-  <img src="img/Litters.png" alt="Image 1" width="30%" />
-  <img src="img/pop.png" alt="Image 2" width="30%" />
-  <img src="img/Compounds.png" alt="Image 3" width="30%" />
+  <img src="img/Litters.png" alt="Image 1" width="50%" />
+  <img src="img/pop.png" alt="Image 2" width="50%" />
+  <img src="img/Compounds.png" alt="Image 3" width="50%" />
 </p>
 
 ## Back end Integration
