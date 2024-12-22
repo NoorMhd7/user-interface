@@ -2,6 +2,8 @@
 
 A Qt-based desktop application for visualizing UK/EU water quality data with emphasis on accessibility and internationalization.
 
+![Water Quality Dashboard](img/dashboard.png)
+
 ## Features
 - Interactive dashboard for water quality data visualization
 - Detailed pollutant analysis pages
