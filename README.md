@@ -11,6 +11,12 @@ A Qt-based desktop application for visualizing UK/EU water quality data with emp
 - Accessibility features
 - Internationalization support
 
+<p align="center">
+  <img src="img/litter.png" alt="Image 1" width="30%" />
+  <img src="img/pop.png" alt="Image 2" width="30%" />
+  <img src="img/compound.png" alt="Image 3" width="30%" />
+</p>
+
 ## Back end Integration
 We took full use of the starter code and made our model around it. The model is used to display the table and helps filter data for our pages. Moreover, we went with a universal approach where we made a `src/data/config.cpp` file where we have initialized the path to our CSV data, and it is used by all our pages. This ensures that if you were to test our application with a different dataset but the same format, you can just place the CSV in the `src/data` directory and change the path `"../src/data/Y-2024.csv"` to the `Config::UNIVERSAL_FILE_PATH`.
 
