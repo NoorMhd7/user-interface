@@ -58,7 +58,7 @@ qt_add_translations(water-quality-qt)
    ```
 
 ## Team Members
-Muhammad Arif Noor(ID: 201692115),
-Samantha Ramirez(ID: 201725731),
-Josephine Bunce (ID: 201708435),
+Muhammad Arif Noor,
+Samantha Ramirez,
+Josephine Bunce,
 Shayan Hosseini,
